@@ -33,8 +33,8 @@ export default function DatasetTable({
     return data
   })
   
-  const isModal = !isLoading && itemId !== 'form'
-  const columns = getColumns(fields)
+  const isModal = !isLoading && !!itemId
+  const columns = useMemo(() => getColumns(fields), [fields])
   const currentItem = useMemo(() => data.find(item => item.id === itemId), [data, itemId])
 
   return (
@@ -50,7 +50,7 @@ export default function DatasetTable({
         <Col>
           <Button
             type='primary'
-            onClick={() => navigate('/form/create')}
+            onClick={() => navigate(`/selections/${id}/create`)}
           >
             Создать запись
           </Button>
@@ -63,7 +63,7 @@ export default function DatasetTable({
         rowKey={({ id }) => id}
         onRow={record => ({
           onClick: (e) => {
-            navigate(`/form/${record.id}`)
+            navigate(`/selections/${id}/${record.id}`)
           }
         })}
       />
@@ -71,13 +71,14 @@ export default function DatasetTable({
         id={itemId}
         fields={fields}
         initialValues={currentItem}
-        onFinish={values => {
+        onOk={values => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
           Object.keys(values).map(key => {
             sql = sql.replaceAll(`:${key}`, values[key])
           })
           axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
         }}
+        onCancel={() => navigate(`/selections/${id}`)}
       />}
     </>
   )

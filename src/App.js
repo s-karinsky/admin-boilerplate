@@ -3,6 +3,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { Row } from 'antd'
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 import Cookies from 'universal-cookie'
+import PageDataset from './pages/Dataset'
 import PageLogin from './pages/Login'
 import PageUsers from './pages/Users'
 import PageUser from './pages/User'
@@ -45,6 +46,7 @@ function App() {
         <Route path='/' element={<Layout user={user.data} />}>
           <Route path='/users' element={<PageUsers />} />
           <Route path='/users/:id' element={<PageUser />} />
+          <Route path='/selections/:selectionId/:itemId?' element={<PageDataset />} />
         </Route>
         <Route path='/login' element={<PageLogin />} />
       </Routes>

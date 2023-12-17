@@ -11,10 +11,13 @@ import {
   MailOutlined,
   CarOutlined,
   NotificationOutlined,
+  FormOutlined
 } from '@ant-design/icons'
 import Cookies from 'universal-cookie'
 import { Avatar, Button, Dropdown, Menu, Space, Layout, Row, Col } from 'antd'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
+import { useQuery } from 'react-query'
+import { getSelections } from '../../utils/api'
 import styles from './styles.module.scss'
 
 const { Header, Sider, Content } = Layout
@@ -107,18 +110,28 @@ export default function PageLayout({ user = {} }) {
   const [ collapsed, setCollapsed ] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const selections = useQuery(['selections'], getSelections)
 
   const items = useMemo(() => {
+    let selection = []
+    if (!selections.isLoading) {
+      const items = selections.data.map(item => (
+        getItem(<Link to={`/selections/${item.id}`}>{item.label}</Link>, `selection-${item.id}`)
+      ))
+      selection = [getItem('Формы', 'selections', <FormOutlined />, items)]
+    }
+
     if (user.u_role === '4') {
       return [
-        MENU_ITEMS.users
+        MENU_ITEMS.users,
+        ...selection
       ]
     } else if (user.u_role === '2') {
       return [
         
       ]
     }
-  }, [user.u_role])
+  }, [user.u_role, selections.isLoading, selections.data])
 
   const toggleCollapsed = () => setCollapsed(!collapsed)
 

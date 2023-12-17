@@ -5,7 +5,8 @@ import FormField from '../FormField'
 export default function DatasetForm({
   fields,
   initialValues,
-  onFinish = () => {}
+  onOk = () => {},
+  onCancel = () => {}
 }) {
   const navigate = useNavigate()
   const [ form ] = Form.useForm()
@@ -13,7 +14,7 @@ export default function DatasetForm({
   return (
     <Modal
       onOk={() => form.submit()}
-      onCancel={() => navigate('/form')}
+      onCancel={onCancel}
       open
     >
       <Form
@@ -21,7 +22,7 @@ export default function DatasetForm({
         size='large'
         initialValues={initialValues}
         form={form}
-        onFinish={onFinish}
+        onFinish={onOk}
       >
         {Object.keys(fields).map(field => (
           <FormField
