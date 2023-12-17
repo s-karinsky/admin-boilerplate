@@ -44,3 +44,13 @@ export const toFormData = params => {
   })
   return data
 }
+
+export const parseJSON = (str, isWarning) => {
+  let json
+  try {
+    json = JSON.parse(str)
+  } catch (e) {
+    if (isWarning) console.warn(e)
+  }
+  return json
+}

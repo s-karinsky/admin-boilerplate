@@ -1,3 +1,11 @@
+export const sqlSelect = ({
+  select,
+  from,
+  order
+}) => {
+  return `select ${select} from ${from} ${order}`
+}
+
 export const sqlInsert = (table, values) => {
   if (Array.isArray(values)) {
     return `INSERT INTO ${table} VALUES (${values.map(val => typeof val === 'string' && val !== 'NULL' ? `'${val}'` : val).join(', ')})`
