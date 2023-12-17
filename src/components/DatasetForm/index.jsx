@@ -1,5 +1,4 @@
 import { Modal, Form } from 'antd'
-import { useNavigate } from 'react-router-dom'
 import FormField from '../FormField'
 
 export default function DatasetForm({
@@ -8,7 +7,6 @@ export default function DatasetForm({
   onOk = () => {},
   onCancel = () => {}
 }) {
-  const navigate = useNavigate()
   const [ form ] = Form.useForm()
 
   return (

@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Table, Typography, Row, Col, Button } from 'antd'
+import { useEffect, useMemo } from 'react'
+import { Table, Typography, Row, Col, Button, Modal } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import DatasetForm from '../DatasetForm'
@@ -23,16 +23,17 @@ export default function DatasetTable({
   const { itemId } = useParams()
   const { data = [], isLoading } = useQuery(['dataset-table', id], async () => {
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0]) })
-    if (response.status === 'error') {
-      return {
-        error: true,
-        message: response.message
-      }
+
+    if (response.data?.status === 'error') {
+      throw new Error(response.data?.message)
     }
     const data = response.data?.data
     return data
+  }, {
+    onError: (error) => Modal.error({ title: 'Произошла ошибка', content: error?.message }),
+    retry: 0
   })
-  
+
   const isModal = !isLoading && !!itemId
   const columns = useMemo(() => getColumns(fields), [fields])
   const currentItem = useMemo(() => data.find(item => item.id === itemId), [data, itemId])
@@ -71,12 +72,16 @@ export default function DatasetTable({
         id={itemId}
         fields={fields}
         initialValues={currentItem}
-        onOk={values => {
+        onOk={async (values) => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
           Object.keys(values).map(key => {
             sql = sql.replaceAll(`:${key}`, values[key])
           })
-          axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
+          const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
+          const { data = {} } = response
+          if (data.status === 'error') {
+            Modal.error({ title: 'Произошла ошибка', content: data.message })
+          }
         }}
         onCancel={() => navigate(`/selections/${id}`)}
       />}
