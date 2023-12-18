@@ -1,9 +1,10 @@
 export const sqlSelect = ({
   select,
   from,
+  where,
   order = ''
 }) => {
-  return `select ${select} from ${from} ${order}`
+  return `select ${select} from ${from} ${where ? `where ${where}` : ''} ${order}`
 }
 
 export const sqlInsert = (table, values) => {

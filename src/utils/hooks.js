@@ -81,11 +81,12 @@ export const useDictionary = name => useQuery(['dictionary', name], async () => 
 
 export const useFormDescription = (name, table = 'metabase') => useQuery([`form-${table}`, name], async () => {
   const response = await axios.postWithAuth('/query/select', {
-    sql: `select v.pole as selection, s.pole as \`select\`, f.pole as \`from\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, u.pole as \`update\`, d.pole as \`delete\` from ${table} m
+    sql: `select v.pole as selection, s.pole as \`select\`, f.pole as \`from\`, w.pole as \`where\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, u.pole as \`update\`, d.pole as \`delete\` from ${table} m
       left join ${table} v on v.id_ref=m.id and v.tip='selection'
       left join ${table} s on s.id_ref=v.id and s.tip='select'
       left join ${table} i on i.id_ref=s.id and i.tip='field_select'
       left join ${table} f on f.id_ref=v.id and f.tip='from_select'
+      left join ${table} w on w.id_ref=v.id and w.tip='where_select'
       left join ${table} o on o.id_ref=v.id and o.tip='order_select'
       left join ${table} t on t.id_ref=v.id and t.tip='insert_selection'
       left join ${table} u on u.id_ref=v.id and u.tip='update_selection'
@@ -97,6 +98,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([`form-
     let sqlSelect = {
       select: parseJSON(item.select)?.clause,
       from: parseJSON(item.from)?.clause,
+      where: parseJSON(item.where)?.clause,
       order: parseJSON(item.order)?.order
     }
     if (!acc.select.find(item => !eq(item, sqlSelect))) {
