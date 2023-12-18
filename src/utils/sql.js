@@ -1,7 +1,7 @@
 export const sqlSelect = ({
   select,
   from,
-  order
+  order = ''
 }) => {
   return `select ${select} from ${from} ${order}`
 }
