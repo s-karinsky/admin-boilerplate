@@ -3,6 +3,7 @@ import { Table, Typography, Row, Col, Button, Modal } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import DatasetForm from '../DatasetForm'
+import { ModalSqlError } from '../SqlError'
 import axios from '../../utils/axios'
 import { sqlSelect } from '../../utils/sql'
 
@@ -30,7 +31,7 @@ export default function DatasetTable({
     const data = response.data?.data
     return data
   }, {
-    onError: (error) => Modal.error({ title: 'Произошла ошибка', content: error?.message }),
+    onError: (error) => ModalSqlError({ message: error?.message }),
     retry: 0
   })
 
@@ -77,10 +78,10 @@ export default function DatasetTable({
           Object.keys(values).map(key => {
             sql = sql.replaceAll(`:${key}`, values[key])
           })
-          const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
+          const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql: '123' })
           const { data = {} } = response
           if (data.status === 'error') {
-            Modal.error({ title: 'Произошла ошибка', content: data.message })
+            ModalSqlError({ message: data.message, query: sql })
           } else {
             navigate(`/selections/${id}`)
             refetch()
