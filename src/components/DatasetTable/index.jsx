@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Table, Typography, Row, Col, Button, Modal } from 'antd'
+import { Table, Typography, Row, Col, Button } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import DatasetForm from '../DatasetForm'
@@ -101,7 +101,7 @@ export default function DatasetTable({
         })}
       />
       {isModal && <DatasetForm
-        id={itemId}
+        query={sqlSelect(select[0])}
         fields={fields}
         initialValues={currentItem}
         onOk={async (values) => {
