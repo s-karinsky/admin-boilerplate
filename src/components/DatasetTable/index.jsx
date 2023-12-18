@@ -78,7 +78,7 @@ export default function DatasetTable({
           Object.keys(values).map(key => {
             sql = sql.replaceAll(`:${key}`, values[key])
           })
-          const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql: '123' })
+          const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
           const { data = {} } = response
           if (data.status === 'error') {
             ModalSqlError({ message: data.message, query: sql })
