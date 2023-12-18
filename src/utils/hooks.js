@@ -79,17 +79,17 @@ export const useDictionary = name => useQuery(['dictionary', name], async () => 
   staleTime: 10 * 60 * 1000
 })
 
-export const useFormDescription = name => useQuery(['form', name], async () => {
+export const useFormDescription = (name, table = 'metabase') => useQuery(['form', name], async () => {
   const response = await axios.postWithAuth('/query/select', {
-    sql: `select v.pole as selection, s.pole as \`select\`, f.pole as \`from\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, u.pole as \`update\`, d.pole as \`delete\` from metabase m
-      left join metabase v on v.id_ref=m.id and v.tip='selection'
-      left join metabase s on s.id_ref=v.id and s.tip='select'
-      left join metabase i on i.id_ref=s.id and i.tip='field_select'
-      left join metabase f on f.id_ref=v.id and f.tip='from_select'
-      left join metabase o on o.id_ref=v.id and o.tip='order_select'
-      left join metabase t on t.id_ref=v.id and t.tip='insert_selection'
-      left join metabase u on u.id_ref=v.id and u.tip='update_selection'
-      left join metabase d on d.id_ref=v.id and d.tip='delete_selection'
+    sql: `select v.pole as selection, s.pole as \`select\`, f.pole as \`from\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, u.pole as \`update\`, d.pole as \`delete\` from ${table} m
+      left join ${table} v on v.id_ref=m.id and v.tip='selection'
+      left join ${table} s on s.id_ref=v.id and s.tip='select'
+      left join ${table} i on i.id_ref=s.id and i.tip='field_select'
+      left join ${table} f on f.id_ref=v.id and f.tip='from_select'
+      left join ${table} o on o.id_ref=v.id and o.tip='order_select'
+      left join ${table} t on t.id_ref=v.id and t.tip='insert_selection'
+      left join ${table} u on u.id_ref=v.id and u.tip='update_selection'
+      left join ${table} d on d.id_ref=v.id and d.tip='delete_selection'
     where m.tip='forma' and m.id=${name}`.replaceAll('\n', ' ')
   })
   const data = response.data?.data || []

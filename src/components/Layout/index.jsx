@@ -119,9 +119,9 @@ export default function PageLayout({ user = {} }) {
 
     if (!selectionsGenerators.isLoading) {
       const items = selectionsGenerators.data.map(item => (
-        getItem(<Link to={`/selections/${item.id}`}>{item.label}</Link>, `selection-generator-${item.id}`)
+        getItem(<Link to={`/admin/${item.id}`}>{item.label}</Link>, `selection-generator-${item.id}`)
       ))
-      generators = [getItem('Генераторы', 'selections', <FormOutlined />, items)]
+      generators = [getItem('Генераторы', 'selections-generator', <FormOutlined />, items)]
     }
     if (!selections.isLoading) {
       const items = selections.data.map(item => (

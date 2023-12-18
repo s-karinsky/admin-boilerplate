@@ -12,7 +12,7 @@ export default function SqlError({
         <Text strong>Запрос</Text>
         <Text code>{query}</Text>
       </Space>}
-      {!!query && <Space direction='vertical'>
+      {!!message && <Space direction='vertical'>
         <Text strong>Ошибка</Text>
         <Text code>{message}</Text>
       </Space>}
