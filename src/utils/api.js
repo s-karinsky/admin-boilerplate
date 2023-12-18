@@ -43,6 +43,18 @@ export const createUser = async (values) => {
   return lastId
 }
 
+export const getSelectionsGenerators = async () => {
+  const response = await axios.postWithAuth('/query/select', { sql: `SELECT * FROM metaadm WHERE tip='forma'` })
+  const data = response.data?.data
+  return data.map(item => {
+    const json = parseJSON(item.pole)
+    return {
+      id: item.id,
+      label: json.name || item.id
+    }
+  })
+}
+
 export const getSelections = async () => {
   const response = await axios.postWithAuth('/query/select', { sql: `SELECT * FROM metabase WHERE tip='forma'` })
   const data = response.data?.data
