@@ -54,11 +54,11 @@ export default function DatasetForm({
         form={form}
         onFinish={onOk}
       >
-        {Object.keys(fields).map(field => (
+        {fields.map(field => (
           <FormField
-            key={field}
-            name={field}
-            label={fields[field]?.label}
+            key={field.name}
+            name={field.name}
+            label={field?.label}
           />
         ))}
       </Form>

@@ -4,7 +4,8 @@ import {
   DownOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  FormOutlined
+  FormOutlined,
+  PlusSquareOutlined
 } from '@ant-design/icons'
 import Cookies from 'universal-cookie'
 import { Avatar, Button, Dropdown, Menu, Space, Layout, Row, Col } from 'antd'
@@ -32,7 +33,7 @@ const MENU_ITEMS = {
 const groups = [{
   name: 'metaadm',
   label: 'Формы',
-  icon: <FormOutlined />
+  icon: <PlusSquareOutlined />
 }, {
   name: 'metabase',
   label: 'Генераторы',

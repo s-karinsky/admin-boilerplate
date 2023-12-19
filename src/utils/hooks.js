@@ -101,11 +101,28 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
       where: parseJSON(item.where)?.clause,
       order: parseJSON(item.order)?.order
     }
+
+    const field = parseJSON(item.field)
+    let parts = []
+    if (sqlSelect.select) {
+      parts = sqlSelect.select.split(',').map(item => {
+        const str = item.trim()
+        const asPos = str.indexOf(' as ')
+        if (asPos === -1) return str
+        return str.substr(asPos + 4)
+      })
+      Object.keys(field).map(name => {
+        if (parts.includes(name)) {
+          field[name].order = parts.indexOf(name)
+        }
+      })
+    }
+
     if (!acc.select.find(item => !eq(item, sqlSelect))) {
       acc.select.push(sqlSelect)
     }
     acc.selection = { ...acc.selection, ...parseJSON(item.selection) }
-    acc.fields = { ...acc.fields, ...parseJSON(item.field) }
+    acc.fields = { ...acc.fields, ...field }
     acc.insert = { ...acc.insert, ...parseJSON(item.insert) }
     acc.update = { ...acc.update, ...parseJSON(item.update) }
     return acc
@@ -116,6 +133,14 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     update: {},
     select: []
   })
+
+  config.fields = Object.keys(config.fields)
+    .sort((a, b) => config.fields[a].order - config.fields[b].order)
+    .map(name => ({
+      name,
+      ...config.fields[name]
+    }))
+
   return config
 }, {
   staleTime: 600 * 1000

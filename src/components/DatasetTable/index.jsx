@@ -10,7 +10,7 @@ import styles from './styles.module.scss'
 
 export default function DatasetTable({
   select = [],
-  fields = {},
+  fields = [],
   insert = {},
   update = {},
   selection = {},
@@ -55,18 +55,18 @@ export default function DatasetTable({
   }
 
   const isModal = !isLoading && !!itemId
-  const columns = useMemo(() => Object.keys(fields).map((field, i) => ({
-    width: widthByIndex[field],
+  const columns = useMemo(() => fields.map((field, i) => ({
+    width: widthByIndex[field.name],
     title: <>
-      {false && i < Object.keys(fields).length - 1 &&
+      {false && i < fields.length - 1 &&
         <div
           className={styles.resizeArea}
-          onMouseDown={e => handleResize(e, field)}
+          onMouseDown={e => handleResize(e, field.name)}
         />
       }
-      {fields[field].label}
+      {field.label}
     </>,
-    dataIndex: field
+    dataIndex: field.name
   })), [fields, widthByIndex])
   const currentItem = useMemo(() => data.find(item => item.id === itemId), [data, itemId])
 
