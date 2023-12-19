@@ -111,7 +111,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
         if (asPos === -1) return str
         return str.substr(asPos + 4)
       })
-      Object.keys(field).map(name => {
+      Object.keys(field).forEach(name => {
         if (parts.includes(name)) {
           field[name].order = parts.indexOf(name)
         }

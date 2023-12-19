@@ -3,10 +3,12 @@ import { Table, Typography, Row, Col, Button } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import DatasetForm from '../DatasetForm'
+import { mapValues } from 'lodash'
 import { ModalSqlError } from '../SqlError'
 import axios from '../../utils/axios'
 import { sqlSelect } from '../../utils/sql'
 import styles from './styles.module.scss'
+import { parseJSON } from '../../utils/utils'
 
 export default function DatasetTable({
   select = [],
@@ -21,12 +23,11 @@ export default function DatasetTable({
   const [ widthByIndex, setWidthByIndex ] = useState({})
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0]) })
-
     if (response.data?.status === 'error') {
       throw new Error(response.data?.message)
     }
     const data = response.data?.data
-    return data
+    return data.map(item => mapValues(item, value => parseJSON(value) || value))
   }, {
     onError: (error) => ModalSqlError({ message: error?.message }),
     retry: 0
@@ -68,7 +69,7 @@ export default function DatasetTable({
     </>,
     dataIndex: field.name
   })), [fields, widthByIndex])
-  const currentItem = useMemo(() => data.find(item => item.id === itemId), [data, itemId])
+  const currentItem = useMemo(() => data.find(item => String(item.id) === String(itemId)), [data, itemId])
 
   return (
     <>
