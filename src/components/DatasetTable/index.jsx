@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Table, Typography, Row, Col, Button } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
-import DatasetForm from '../DatasetForm'
 import { mapValues } from 'lodash'
+import DatasetForm from '../DatasetForm'
 import { ModalSqlError } from '../SqlError'
 import axios from '../../utils/axios'
 import { sqlSelect } from '../../utils/sql'
-import styles from './styles.module.scss'
 import { parseJSON } from '../../utils/utils'
+import styles from './styles.module.scss'
+
+const getCellsWidth = (route, selectionId) => parseJSON(localStorage.getItem(`${route}-${selectionId}-cell-size`)) || {}
 
 export default function DatasetTable({
   select = [],
@@ -20,7 +22,7 @@ export default function DatasetTable({
 }) {
   const navigate = useNavigate()
   const { selectionId, itemId } = useParams()
-  const [ widthByIndex, setWidthByIndex ] = useState({})
+  const [ widthByIndex, setWidthByIndex ] = useState(getCellsWidth(route, selectionId))
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0]) })
     if (response.data?.status === 'error') {
@@ -33,20 +35,29 @@ export default function DatasetTable({
     retry: 0
   })
 
+  useEffect(() => {
+    setWidthByIndex(getCellsWidth(route, selectionId))
+  }, [selectionId])
+
   const handleResize = (event, field) => {
     const el = event.target
     const th = el.parentNode
+    const tr = th.parentNode
+    const fullWidth = tr.clientWidth
     const initialWidth = th.clientWidth
     const initialLeft = event.clientX
+    let byIndex = {}
   
     const handleMouseMove = e => {
       const currentLeft = e.clientX
       const offset = currentLeft - initialLeft
-      const width = initialWidth + offset
-      setWidthByIndex({ ...widthByIndex, [field]: width })
+      const width = (((initialWidth + offset) / fullWidth) * 100).toFixed(2)
+      byIndex = { ...widthByIndex, [field]: `${width}%` }
+      setWidthByIndex(byIndex)
     }
 
     const handleMouseUp = () => {
+      localStorage.setItem(`${route}-${selectionId}-cell-size`, JSON.stringify(byIndex))
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
@@ -59,13 +70,13 @@ export default function DatasetTable({
   const columns = useMemo(() => fields.map((field, i) => ({
     width: widthByIndex[field.name],
     title: <>
-      {false && i < fields.length - 1 &&
+      {i < fields.length - 1 &&
         <div
           className={styles.resizeArea}
           onMouseDown={e => handleResize(e, field.name)}
         />
       }
-      {field.label}
+      <span className={styles.tableLabel}>{field.label}</span>
     </>,
     dataIndex: field.name
   })), [fields, widthByIndex])
