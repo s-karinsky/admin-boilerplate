@@ -1,23 +1,16 @@
 import { useMemo, useState } from 'react'
 import {
-  BarcodeOutlined,
   UserOutlined,
   DownOutlined,
-  UnorderedListOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  FileTextOutlined,
-  TranslationOutlined,
-  MailOutlined,
-  CarOutlined,
-  NotificationOutlined,
   FormOutlined
 } from '@ant-design/icons'
 import Cookies from 'universal-cookie'
 import { Avatar, Button, Dropdown, Menu, Space, Layout, Row, Col } from 'antd'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
-import { useQuery } from 'react-query'
-import { getSelections, getSelectionsGenerators } from '../../utils/api'
+import { useQueries } from 'react-query'
+import { getSelections } from '../../utils/api'
 import styles from './styles.module.scss'
 
 const { Header, Sider, Content } = Layout
@@ -33,115 +26,47 @@ function getItem(label, key, icon, children, type) {
 }
 
 const MENU_ITEMS = {
-  translations: getItem(
-    <Link to='/translations'>Translations</Link>,
-    'translations',
-    <TranslationOutlined />
-  ),
-  content: getItem('Content', 'content', <FileTextOutlined />, [
-    getItem(<Link to='/content/about-us'>About us</Link>, 'about-us'),
-    getItem(<Link to='/content/faq'>FAQ</Link>, 'faq'),
-    getItem(<Link to='/content/news'>News</Link>, 'news'),
-    getItem(<Link to='/content/corporate'>Corporate</Link>, 'corporate'),
-    getItem(
-      <Link to='/content/privacy-policy'>Privacy policy</Link>,
-      'privacy-policy'
-    ),
-    getItem(
-      <Link to='/content/become-a-partner'>Become a partner</Link>,
-      'become-a-partner'
-    ),
-  ]),
-  data: getItem('Data', 'data', <UnorderedListOutlined />, [
-    getItem(<Link to='/matches'>Matches</Link>, 'matches'),
-    getItem(<Link to='/teams'>Teams</Link>, 'teams'),
-    getItem(<Link to='/stadiums'>Stadiums</Link>, 'stadiums'),
-    getItem(<Link to='/tournaments'>Tournaments</Link>, 'tournaments'),
-  ]),
-  templates: getItem('E-mail templates', 'templates', <MailOutlined />, [
-    getItem(<Link to='/templates/signup'>Signup</Link>, 'signup'),
-    getItem(
-      <Link to='/templates/booking-in-cart'>
-        Booking tickets in cart
-      </Link>,
-      'booking-in-cart'
-    ),
-    getItem(
-      <Link to='/templates/successful-payment'>Successful payment</Link>,
-      'successful-payment'
-    ),
-    getItem(
-      <Link to='/templates/checking-ticket'>
-        Does the ticket work or not
-      </Link>,
-      'checking-ticket'
-    ),
-    getItem(<Link to='/templates/feedback'>Feedback</Link>, 'feedback'),
-    getItem(
-      <Link to='/templates/restore-password'>Restore password</Link>,
-      'restore-password'
-    ),
-    getItem(
-      <Link to='/templates/tickets-are-in-stock'>
-        Tickets are in stock
-      </Link>,
-      'tickets-are-in-stock'
-    ),
-  ]),
   users: getItem(<Link to='/users'>Users</Link>, 'users', <UserOutlined />),
-  tickets: getItem(
-    <Link to='/tickets'>Tickets</Link>,
-    'tickets',
-    <BarcodeOutlined />
-  ),
-  notifications: getItem(
-    <Link to='/notifications'>Notifications</Link>,
-    'notifications',
-    <NotificationOutlined />
-  ),
-  sendings: getItem(
-    <Link to='/sendings'>Sendings</Link>,
-    'sendings',
-    <CarOutlined />
-  ),
 }
+
+const groups = [{
+  name: 'metaadm',
+  label: 'Формы',
+  icon: <FormOutlined />
+}, {
+  name: 'metabase',
+  label: 'Генераторы',
+  icon: <FormOutlined />
+}]
 
 export default function PageLayout({ user = {} }) {
   const [ collapsed, setCollapsed ] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const selectionsGenerators = useQuery(['selectionsGenerators'], getSelectionsGenerators)
-  const selections = useQuery(['selections'], getSelections)
+  const result = useQueries(
+    groups.map(item => ({
+      queryKey: [`menu-${item.name}`],
+      queryFn: getSelections(item.name)
+    }))
+  )
 
   const items = useMemo(() => {
-    let selection = []
-    let generators = []
+    if (user.u_role !== '4') return []
+    const items = [MENU_ITEMS.users]
 
-    if (!selectionsGenerators.isLoading) {
-      const items = selectionsGenerators.data.map(item => (
-        getItem(<Link to={`/admin/${item.id}`}>{item.label}</Link>, `selection-generator-${item.id}`)
-      ))
-      generators = [getItem('Генераторы', 'selections-generator', <FormOutlined />, items)]
-    }
-    if (!selections.isLoading) {
-      const items = selections.data.map(item => (
-        getItem(<Link to={`/selections/${item.id}`}>{item.label}</Link>, `selection-${item.id}`)
-      ))
-      selection = [getItem('Формы', 'selections', <FormOutlined />, items)]
-    }
+    result.filter(nav => nav.isSuccess).forEach((nav, i) => {
+      const group = groups[i]
+      const menuItem = getItem(
+        group.label,
+        group.name,
+        group.icon,
+        nav.data.map(item => getItem(<Link to={`/${group.name}/${item.id}`}>{item.label}</Link>, `${group.name}-${item.id}`))
+      )
+      items.push(menuItem)
+    })
 
-    if (user.u_role === '4') {
-      return [
-        MENU_ITEMS.users,
-        ...generators,
-        ...selection
-      ]
-    } else if (user.u_role === '2') {
-      return [
-        
-      ]
-    }
-  }, [user.u_role, selections.isLoading, selections.data, selectionsGenerators.isLoading, selectionsGenerators.data])
+    return items
+  }, [user.u_role, result])
 
   const toggleCollapsed = () => setCollapsed(!collapsed)
 

@@ -17,9 +17,9 @@ export default function DatasetTable({
   route
 }) {
   const navigate = useNavigate()
-  const { selectionId: id, itemId } = useParams()
+  const { selectionId, itemId } = useParams()
   const [ widthByIndex, setWidthByIndex ] = useState({})
-  const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, id], async () => {
+  const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0]) })
 
     if (response.data?.status === 'error') {
@@ -83,7 +83,7 @@ export default function DatasetTable({
         <Col>
           <Button
             type='primary'
-            onClick={() => navigate(`/${route}/${id}/create`)}
+            onClick={() => navigate(`/${route}/${selectionId}/create`)}
           >
             Создать запись
           </Button>
@@ -96,7 +96,7 @@ export default function DatasetTable({
         rowKey={({ id }) => id}
         onRow={record => ({
           onClick: (e) => {
-            navigate(`/${route}/${id}/${record.id}`)
+            navigate(`/${route}/${selectionId}/${record.id}`)
           }
         })}
       />
@@ -106,7 +106,7 @@ export default function DatasetTable({
         initialValues={currentItem}
         onOk={async (values) => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
-          Object.keys(values).map(key => {
+          Object.keys(values).forEach(key => {
             sql = sql.replaceAll(`:${key}`, values[key])
           })
           const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
@@ -114,11 +114,11 @@ export default function DatasetTable({
           if (data.status === 'error') {
             ModalSqlError({ message: data.message, query: sql })
           } else {
-            navigate(`/${route}/${id}`)
+            navigate(`/${route}/${selectionId}`)
             refetch()
           }
         }}
-        onCancel={() => navigate(`/${route}/${id}`)}
+        onCancel={() => navigate(`/${route}/${selectionId}`)}
       />}
     </>
   )
