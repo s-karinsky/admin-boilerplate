@@ -32,11 +32,11 @@ const MENU_ITEMS = {
 
 const groups = [{
   name: 'metaadm',
-  label: 'Формы',
+  label: 'Генераторы',
   icon: <PlusSquareOutlined />
 }, {
   name: 'metabase',
-  label: 'Генераторы',
+  label: 'Формы',
   icon: <FormOutlined />
 }]
 
@@ -70,8 +70,6 @@ export default function PageLayout({ user = {} }) {
   }, [user.u_role, result])
 
   const toggleCollapsed = () => setCollapsed(!collapsed)
-
-  const path = location.pathname.split('/')[1]
 
   const userItems = useMemo(
     () => [
@@ -136,7 +134,6 @@ export default function PageLayout({ user = {} }) {
       <Layout>
         <Sider collapsed={collapsed}>
           <Menu
-            selectedKeys={[path]}
             theme='dark'
             items={items}
             mode='inline'
