@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from 'react'
 import { Table, Typography, Row, Col, Button } from 'antd'
 import { useQuery } from 'react-query'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { mapValues } from 'lodash'
+import { MenuOutlined } from '@ant-design/icons'
 import DatasetForm from '../DatasetForm'
 import { ModalSqlError } from '../SqlError'
 import axios from '../../utils/axios'
@@ -22,9 +23,12 @@ export default function DatasetTable({
 }) {
   const navigate = useNavigate()
   const { selectionId, itemId } = useParams()
+  const [ searchParams ] = useSearchParams()
   const [ widthByIndex, setWidthByIndex ] = useState(getCellsWidth(route, selectionId))
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
-    const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0]) })
+    const params = {}
+    searchParams.forEach((value, key) => params[key] = value)
+    const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
     if (response.data?.status === 'error') {
       throw new Error(response.data?.message)
     }
@@ -34,7 +38,6 @@ export default function DatasetTable({
     onError: (error) => ModalSqlError({ message: error?.message }),
     retry: 0
   })
-
   useEffect(() => {
     setWidthByIndex(getCellsWidth(route, selectionId))
   }, [selectionId])
@@ -67,19 +70,43 @@ export default function DatasetTable({
   }
 
   const isModal = !isLoading && !!itemId
-  const columns = useMemo(() => fields.map((field, i) => ({
-    width: widthByIndex[field.name],
-    title: <>
-      {i < fields.length - 1 &&
-        <div
-          className={styles.resizeArea}
-          onMouseDown={e => handleResize(e, field.name)}
-        />
-      }
-      <span className={styles.tableLabel}>{field.label}</span>
-    </>,
-    dataIndex: field.name
-  })), [fields, widthByIndex])
+  const columns = useMemo(() => {
+    const cols = fields.map((field, i) => ({
+      width: widthByIndex[field.name],
+      title: <>
+        {i < fields.length - 1 &&
+          <div
+            className={styles.resizeArea}
+            onMouseDown={e => handleResize(e, field.name)}
+          />
+        }
+        <span className={styles.tableLabel}>{field.label}</span>
+      </>,
+      dataIndex: field.name
+    }))
+    if (selection.kod === 'selection_list') {
+      cols.push({
+        title: '',
+        width: 30,
+        dataIndex: '_buttons'
+      })
+    }
+    return cols
+  }, [fields, widthByIndex, selection])
+
+  const dataSource = useMemo(() => {
+    if (selection.kod !== 'selection_list') return data
+    return data.map(item => ({
+      ...item,
+      _buttons: <MenuOutlined
+        onClick={e => {
+          e.stopPropagation()
+          navigate(`/metaadm/${selectionId}/list/30?id=${item.id}`)
+        }}
+      />
+    }))
+  }, [selection, data])
+
   const currentItem = useMemo(() => data.find(item => String(item.id) === String(itemId)), [data, itemId])
 
   return (
@@ -103,13 +130,11 @@ export default function DatasetTable({
       </Row>
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={dataSource}
         isLoading={isLoading}
         rowKey={({ id }) => id}
         onRow={record => ({
-          onClick: (e) => {
-            navigate(`/${route}/${selectionId}/${record.id}`)
-          }
+          onClick: () => navigate(`/${route}/${selectionId}/${record.id}`)
         })}
       />
       {isModal && <DatasetForm

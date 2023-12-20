@@ -3,8 +3,12 @@ export const sqlSelect = ({
   from,
   where,
   order = ''
-}) => {
-  return `select ${select} from ${from} ${where ? `where ${where}` : ''} ${order}`
+}, replace = {}) => {
+  let query = `select ${select} from ${from} ${where ? `where ${where}` : ''} ${order}`
+  Object.keys(replace).forEach(key => {
+    query = query.replaceAll(`:${key}`, replace[key])
+  })
+  return query
 }
 
 export const sqlInsert = (table, values) => {
