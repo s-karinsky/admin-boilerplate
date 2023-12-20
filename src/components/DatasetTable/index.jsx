@@ -28,6 +28,7 @@ export default function DatasetTable({
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
     const params = {}
     searchParams.forEach((value, key) => params[key] = value)
+    if (params.id) params.id = parseInt(params.id) + 1
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
     if (response.data?.status === 'error') {
       throw new Error(response.data?.message)
