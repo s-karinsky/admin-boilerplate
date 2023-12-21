@@ -37,7 +37,12 @@ export default function DatasetTable({
     const data = response.data?.data
     return data.map(item => mapValues(item, value => parseJSON(value) || value))
   }, {
-    onError: (error) => ModalSqlError({ message: error?.message }),
+    onError: (error) => {
+      const params = {}
+      searchParams.forEach((value, key) => params[key] = value)
+      if (params.id) params.id = parseInt(params.id) + 1
+      ModalSqlError({ message: error?.message, query: sqlSelect(select[0], params) })
+    },
     retry: 0
   })
   useEffect(() => {
