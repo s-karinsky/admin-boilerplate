@@ -156,7 +156,7 @@ export default function DatasetTable({
           const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
           const { data = {} } = response
           if (data.status === 'error') {
-            ModalSqlError({ message: data.message, query: sql })
+            ModalSqlError({ message: data.message, query: sql })  
           } else {
             navigate(`${location.pathname.split('/').slice(0, -1).join('/')}${location.search}`)
             refetch()

@@ -1,6 +1,7 @@
 import { Modal, Form, Button, Space, Typography } from 'antd'
 import { SettingOutlined } from '@ant-design/icons'
 import FormField from '../FormField'
+import DndModal from '../DndModal'
 
 const { Text } = Typography
 
@@ -14,7 +15,7 @@ export default function DatasetForm({
   const [ form ] = Form.useForm()
 
   return (
-    <Modal
+    <DndModal
       onOk={() => form.submit()}
       onCancel={onCancel}
       footer={[
@@ -62,6 +63,6 @@ export default function DatasetForm({
           />
         ))}
       </Form>
-    </Modal>
+    </DndModal>
   )
 }
