@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { Table, Typography, Row, Col, Button } from 'antd'
 import { useQuery } from 'react-query'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { mapValues } from 'lodash'
 import { MenuOutlined } from '@ant-design/icons'
 import DatasetForm from '../DatasetForm'
@@ -22,6 +22,7 @@ export default function DatasetTable({
   route
 }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { selectionId, itemId } = useParams()
   const [ searchParams ] = useSearchParams()
   const [ widthByIndex, setWidthByIndex ] = useState(getCellsWidth(route, selectionId))
@@ -123,7 +124,7 @@ export default function DatasetTable({
         <Col>
           <Button
             type='primary'
-            onClick={() => navigate(`/${route}/${selectionId}/create`)}
+            onClick={() => navigate(`${location.pathname}/create${location.search}`)}
           >
             Создать запись
           </Button>
@@ -135,7 +136,7 @@ export default function DatasetTable({
         isLoading={isLoading}
         rowKey={({ id }) => id}
         onRow={record => ({
-          onClick: () => navigate(`/${route}/${selectionId}/${record.id}`)
+          onClick: () => navigate(`${location.pathname}/${record.id}${location.search}`)
         })}
       />
       {isModal && <DatasetForm
@@ -152,11 +153,11 @@ export default function DatasetTable({
           if (data.status === 'error') {
             ModalSqlError({ message: data.message, query: sql })
           } else {
-            navigate(`/${route}/${selectionId}`)
+            navigate(`${location.pathname.split('/').slice(0, -1).join('/')}${location.search}`)
             refetch()
           }
         }}
-        onCancel={() => navigate(`/${route}/${selectionId}`)}
+        onCancel={() => navigate(`${location.pathname.split('/').slice(0, -1).join('/')}${location.search}`)}
       />}
     </>
   )
