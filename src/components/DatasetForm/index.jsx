@@ -35,7 +35,7 @@ export default function DatasetForm({
                 <Space direction='vertical'>
                   {Object.keys(values).map(field => ( 
                     <Text style={{ marginBottom: 20 }} key={field} code>
-                      {field}={initialValues[field] || '""'} ({values[field] || '""'})
+                      {field}={(initialValues[field] || '') === (values[field] || '') ? (values[field] || '""') : `${initialValues[field] || '""'} (${values[field] || '""'})`}
                     </Text>
                   ))}
                   <Text strong>Запрос выборки</Text>
