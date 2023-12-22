@@ -33,14 +33,16 @@ export default function DatasetForm({
               title: 'Информация',
               content: (
                 <Space direction='vertical'>
-                  {Object.keys(values).map(field => (
+                  {Object.keys(values).map(field => ( 
                     <Text style={{ marginBottom: 20 }} key={field} code>
                       {field}={initialValues[field] || '""'} ({values[field] || '""'})
                     </Text>
                   ))}
                   <Text strong>Запрос выборки</Text>
                   <Text style={{ marginBottom: 20 }} code>{query}</Text>
-                  <Text strong>Запрос действия</Text>
+                  <Text strong>Исходный запрос действия</Text>
+                  <Text code>{formQuery}</Text>
+                  <Text strong>Реальный запрос действия</Text>
                   <Text code>{fullQuery}</Text>
                 </Space>
               )
