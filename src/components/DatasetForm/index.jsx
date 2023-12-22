@@ -7,6 +7,7 @@ const { Text } = Typography
 
 export default function DatasetForm({
   query,
+  formQuery,
   fields,
   initialValues,
   onOk = () => {},
@@ -31,8 +32,10 @@ export default function DatasetForm({
                     {field}={form.getFieldsValue()[field]}
                   </Text>
                 ))}
-                <Text strong>Запрос</Text>
+                <Text strong>Запрос выборки</Text>
                 <Text style={{ marginBottom: 20 }} code>{query}</Text>
+                <Text strong>Запрос действия</Text>
+                <Text code>{formQuery}</Text>
               </Space>
             )
           })}

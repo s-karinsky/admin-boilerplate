@@ -3,7 +3,7 @@ export const sqlSelect = ({
   from,
   where,
   order = ''
-}, replace = {}) => {
+} = {}, replace = {}) => {
   let query = `select ${select} from ${from} ${where ? `where ${where}` : ''} ${order}`
   Object.keys(replace).forEach(key => {
     query = query.replaceAll(`:${key}`, replace[key])

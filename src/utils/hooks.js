@@ -56,12 +56,40 @@ export const useCities = (country) => useQuery(['cities', country], async () => 
   enabled: !!country
 })
 
+/* 
+useFormDescription
+@return {
+  selection?: {
+    kod?: string,
+    name: string
+  },
+  fields: [{
+    name: string,
+    label?: string
+  }],
+  insert?: {
+    i1: string
+  },
+  update?: {
+    u1: string
+  },
+  deleteQuery?: {
+    d1: string
+  },
+  select?: [{
+    select: string,
+    from: string,
+    where?: string,
+    order?: string
+  }]
+}
+*/
 export const useFormDescription = (name, table = 'metabase') => useQuery([table, name], async () => {
   const response = await axios.postWithAuth('/query/select', {
     sql: `select v.pole as selection, s.pole as \`select\`, f.pole as \`from\`, w.pole as \`where\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, u.pole as \`update\`, d.pole as \`delete\` from ${table} m
       left join ${table} v on v.id_ref=m.id and v.tip='selection'
       left join ${table} s on s.id_ref=v.id and s.tip='select'
-      left join ${table} i on i.id_ref=s.id and i.tip='field_select'
+      left join ${table} i on i.id_ref=v.id and i.tip='field_select'
       left join ${table} f on f.id_ref=v.id and f.tip='from_select'
       left join ${table} w on w.id_ref=v.id and w.tip='where_select'
       left join ${table} o on o.id_ref=v.id and o.tip='order_select'
@@ -78,8 +106,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
       where: parseJSON(item.where)?.clause,
       order: parseJSON(item.order)?.order
     }
-
-    const field = parseJSON(item.field)
+    const field = parseJSON(item.field) || {}
     let parts = []
     if (sqlSelect.select) {
       parts = sqlSelect.select.split(',').map(item => {
@@ -94,7 +121,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
         }
       })
     }
-
+    
     if (!acc.select.find(item => !eq(item, sqlSelect))) {
       acc.select.push(sqlSelect)
     }
@@ -102,12 +129,14 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     acc.fields = { ...acc.fields, ...field }
     acc.insert = { ...acc.insert, ...parseJSON(item.insert) }
     acc.update = { ...acc.update, ...parseJSON(item.update) }
+    acc.deleteQuery = { ...acc.delete, ...parseJSON(item.delete) }
     return acc
   }, {
     selection: {},
     fields: {},
     insert: {},
     update: {},
+    deleteQuery: {},
     select: []
   })
 

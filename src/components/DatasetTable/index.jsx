@@ -1,9 +1,9 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Table, Typography, Row, Col, Button } from 'antd'
+import { Table, Typography, Row, Col, Button, Modal } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { mapValues } from 'lodash'
-import { MenuOutlined } from '@ant-design/icons'
+import { MenuOutlined, ExclamationCircleFilled, DeleteOutlined } from '@ant-design/icons'
 import DatasetForm from '../DatasetForm'
 import { ModalSqlError } from '../SqlError'
 import axios from '../../utils/axios'
@@ -18,6 +18,7 @@ export default function DatasetTable({
   fields = [],
   insert = {},
   update = {},
+  deleteQuery = {},
   selection = {},
   route
 }) {
@@ -26,10 +27,12 @@ export default function DatasetTable({
   const { selectionId, itemId } = useParams()
   const [ searchParams ] = useSearchParams()
   const [ widthByIndex, setWidthByIndex ] = useState(getCellsWidth(route, selectionId))
+  const params = {}
+  searchParams.forEach((value, key) => params[key] = value)
+  if (params.id) params.id = parseInt(params.id)
+  else params.id = parseInt(selectionId)
+
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
-    const params = {}
-    searchParams.forEach((value, key) => params[key] = value)
-    if (params.id) params.id = parseInt(params.id) + 1
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
     if (response.data?.status === 'error') {
       throw new Error(response.data?.message)
@@ -91,27 +94,58 @@ export default function DatasetTable({
       </>,
       dataIndex: field.name
     }))
-    if (selection.kod === 'selection_list') {
-      cols.push({
-        title: '',
-        width: 30,
-        dataIndex: '_buttons'
-      })
-    }
+    cols.push({
+      title: '',
+      width: 30,
+      dataIndex: '_buttons'
+    })
     return cols
   }, [fields, widthByIndex, selection])
 
   const dataSource = useMemo(() => {
-    if (selection.kod !== 'selection_list') return data
-    return data.map(item => ({
-      ...item,
-      _buttons: <MenuOutlined
-        onClick={e => {
-          e.stopPropagation()
-          navigate(`/metaadm/${selectionId}/list/30?id=${item.id}`)
-        }}
-      />
-    }))
+    return data.map(item => {
+      const buttons = []
+      if (deleteQuery.d1) {
+        buttons.push(
+          <DeleteOutlined
+            color='red'
+            onClick={(e) => {
+              e.stopPropagation()
+              Modal.confirm({
+                title: 'Вы действительно хотите удалить эту запись?',
+                icon: <ExclamationCircleFilled />,
+                okText: 'Да',
+                okType: 'danger',
+                cancelText: 'Нет',
+                onOk: async () => {
+                  let sql = deleteQuery.d1
+                  Object.keys(item).forEach(key => {
+                    sql = sql.replaceAll(`:${key}`, item[key])
+                  })
+                  const query = sql.includes('update') ? 'update' : 'delete'
+                  await axios.postWithAuth(`/query/${query}`, { sql })
+                  refetch()
+                }
+              })
+            }}
+          />
+        )
+      }
+      if (selection.kod === 'selection_list') {
+        buttons.push(
+          <MenuOutlined
+            onClick={e => {
+              e.stopPropagation()
+              navigate(`/metaadm/${selectionId}/list/30?id=${item.id}`)
+            }}
+          />
+        )
+      }
+      return {
+        ...item,
+        _buttons: buttons
+      }
+    })
   }, [selection, data])
 
   const currentItem = useMemo(() => data.find(item => String(item.id) === String(itemId)), [data, itemId])
@@ -127,12 +161,12 @@ export default function DatasetTable({
           <Typography.Title>{selection.name}</Typography.Title>
         </Col>
         <Col>
-          <Button
+          {!!insert.i1 && <Button
             type='primary'
             onClick={() => navigate(`${location.pathname}/create${location.search}`)}
           >
             Создать запись
-          </Button>
+          </Button>}
         </Col>
       </Row>
       <Table
@@ -145,7 +179,8 @@ export default function DatasetTable({
         })}
       />
       {isModal && <DatasetForm
-        query={sqlSelect(select[0])}
+        query={sqlSelect(select[0], params)}
+        formQuery={itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')}
         fields={fields}
         initialValues={currentItem}
         onOk={async (values) => {
