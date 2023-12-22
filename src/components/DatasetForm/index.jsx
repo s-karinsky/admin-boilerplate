@@ -22,23 +22,30 @@ export default function DatasetForm({
       footer={[
         <Button
           key='setting'
-          onClick={() => Modal.info({
-            width: 800,
-            title: 'Информация',
-            content: (
-              <Space direction='vertical'>
-                {Object.keys(form.getFieldsValue()).map(field => (
-                  <Text style={{ marginBottom: 20 }} key={field} code>
-                    {field}={form.getFieldsValue()[field]}
-                  </Text>
-                ))}
-                <Text strong>Запрос выборки</Text>
-                <Text style={{ marginBottom: 20 }} code>{query}</Text>
-                <Text strong>Запрос действия</Text>
-                <Text code>{formQuery}</Text>
-              </Space>
-            )
-          })}
+          onClick={() => {
+            const values = form.getFieldsValue()
+            let fullQuery = formQuery
+            Object.keys(values).map(key => {
+              fullQuery = fullQuery.replaceAll(`:${key}`, values[key])
+            })
+            Modal.info({
+              width: 800,
+              title: 'Информация',
+              content: (
+                <Space direction='vertical'>
+                  {Object.keys(values).map(field => (
+                    <Text style={{ marginBottom: 20 }} key={field} code>
+                      {field}={values[field]}
+                    </Text>
+                  ))}
+                  <Text strong>Запрос выборки</Text>
+                  <Text style={{ marginBottom: 20 }} code>{query}</Text>
+                  <Text strong>Запрос действия</Text>
+                  <Text code>{fullQuery}</Text>
+                </Space>
+              )
+            })
+          }}
         >
           <SettingOutlined />
         </Button>,
