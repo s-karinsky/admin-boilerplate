@@ -86,7 +86,7 @@ useFormDescription
 */
 export const useFormDescription = (name, table = 'metabase') => useQuery([table, name], async () => {
   const response = await axios.postWithAuth('/query/select', {
-    sql: `select v.pole as selection, s.pole as \`select\`, f.pole as \`from\`, w.pole as \`where\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, u.pole as \`update\`, d.pole as \`delete\` from ${table} m
+    sql: `select v.pole as selection, s.pole as \`select\`, s.id as id_select, f.pole as \`from\`, w.pole as \`where\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, t.id as id_insert, u.pole as \`update\`, u.id as id_update, d.pole as \`delete\`, d.id as id_delete from ${table} m
       left join ${table} v on v.id_ref=m.id and v.tip='selection'
       left join ${table} s on s.id_ref=v.id and s.tip='select'
       left join ${table} i on i.id_ref=v.id and i.tip='field_select'
@@ -130,8 +130,16 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     acc.insert = { ...acc.insert, ...parseJSON(item.insert) }
     acc.update = { ...acc.update, ...parseJSON(item.update) }
     acc.deleteQuery = { ...acc.delete, ...parseJSON(item.delete) }
+    acc.queryId = {
+      ...acc.queryId,
+      insert: item.id_insert,
+      select: item.id_select,
+      update: item.id_update,
+      delete: item.id_delete
+    }
     return acc
   }, {
+    queryId: {},
     selection: {},
     fields: {},
     insert: {},

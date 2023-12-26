@@ -20,6 +20,7 @@ export default function DatasetTable({
   update = {},
   deleteQuery = {},
   selection = {},
+  queryId = {},
   route
 }) {
   const navigate = useNavigate()
@@ -181,6 +182,8 @@ export default function DatasetTable({
       {isModal && <DatasetForm
         query={sqlSelect(select[0], params)}
         formQuery={itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')}
+        queryId={itemId === 'create' ? queryId.insert : queryId.update}
+        selectId={queryId.select}
         fields={fields}
         initialValues={currentItem}
         onOk={async (values) => {

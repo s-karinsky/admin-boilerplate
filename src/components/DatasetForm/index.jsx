@@ -9,6 +9,8 @@ export default function DatasetForm({
   query,
   formQuery,
   fields,
+  queryId,
+  selectId,
   initialValues = {},
   onOk = () => {},
   onCancel = () => {}
@@ -38,9 +40,9 @@ export default function DatasetForm({
                       {field}={(initialValues[field] || '') === (values[field] || '') ? (values[field] || '""') : `${initialValues[field] || '""'} (${values[field] || '""'})`}
                     </Text>
                   ))}
-                  <Text strong>Запрос выборки</Text>
+                  <Text strong>Запрос выборки (id={selectId})</Text>
                   <Text style={{ marginBottom: 20 }} code>{query}</Text>
-                  <Text strong>Исходный запрос действия</Text>
+                  <Text strong>Исходный запрос действия (id={queryId})</Text>
                   <Text code>{formQuery}</Text>
                   <Text strong>Реальный запрос действия</Text>
                   <Text code>{fullQuery}</Text>
