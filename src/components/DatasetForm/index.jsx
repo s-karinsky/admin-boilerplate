@@ -11,6 +11,7 @@ export default function DatasetForm({
   fields,
   queryId,
   selectId,
+  parentId,
   initialValues = {},
   onOk = () => {},
   onCancel = () => {}
@@ -26,6 +27,9 @@ export default function DatasetForm({
           key='setting'
           onClick={() => {
             const values = form.getFieldsValue()
+            if (parentId) {
+              values.parent_id = parentId
+            }
             let fullQuery = formQuery
             Object.keys(values).map(key => {
               fullQuery = fullQuery.replaceAll(`:${key}`, values[key])

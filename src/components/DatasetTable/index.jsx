@@ -25,7 +25,7 @@ export default function DatasetTable({
 }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { selectionId, itemId } = useParams()
+  const { parentId, selectionId, itemId } = useParams()
   const [ searchParams ] = useSearchParams()
   const [ widthByIndex, setWidthByIndex ] = useState(getCellsWidth(route, selectionId))
   const params = {}
@@ -85,7 +85,7 @@ export default function DatasetTable({
     const cols = fields.map((field, i) => ({
       width: widthByIndex[field.name],
       title: <>
-        {i < fields.length - 1 &&
+        {i < fields.length &&
           <div
             className={styles.resizeArea}
             onMouseDown={e => handleResize(e, field.name)}
@@ -110,6 +110,7 @@ export default function DatasetTable({
         buttons.push(
           <DeleteOutlined
             color='red'
+            style={{ marginRight: 10 }}
             onClick={(e) => {
               e.stopPropagation()
               Modal.confirm({
@@ -144,7 +145,7 @@ export default function DatasetTable({
       }
       return {
         ...item,
-        _buttons: buttons
+        _buttons: <div style={{ whiteSpace: 'nowrap' }}>{buttons}</div>
       }
     })
   }, [selection, data])
@@ -184,6 +185,7 @@ export default function DatasetTable({
         formQuery={itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')}
         queryId={itemId === 'create' ? queryId.insert : queryId.update}
         selectId={queryId.select}
+        parentId={parentId}
         fields={fields}
         initialValues={currentItem}
         onOk={async (values) => {
