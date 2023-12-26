@@ -12,6 +12,7 @@ export default function DatasetForm({
   queryId,
   selectId,
   parentId,
+  selectionId,
   initialValues = {},
   onOk = () => {},
   onCancel = () => {}
@@ -29,6 +30,9 @@ export default function DatasetForm({
             const values = form.getFieldsValue()
             if (parentId) {
               values.parent_id = parentId
+            }
+            if (selectionId) {
+              values.form_id = selectionId
             }
             let fullQuery = formQuery
             Object.keys(values).map(key => {
