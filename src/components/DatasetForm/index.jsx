@@ -9,7 +9,7 @@ export default function DatasetForm({
   query,
   formQuery,
   fields,
-  initialValues,
+  initialValues = {},
   onOk = () => {},
   onCancel = () => {}
 }) {
