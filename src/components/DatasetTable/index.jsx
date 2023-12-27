@@ -186,7 +186,7 @@ export default function DatasetTable({
         queryId={itemId === 'create' ? queryId.insert : queryId.update}
         selectId={queryId.select}
         parentId={parentId}
-        selectionId={selectionId}
+        selectionId={params.id}
         fields={fields}
         initialValues={currentItem}
         onOk={async (values) => {
