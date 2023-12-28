@@ -14,8 +14,6 @@ export const USER_ROLES = {
 
 export const USER_ROLES_OPTIONS = ['1', '2']
 
-export const SENDING_STATUS = ['Формирование', 'В пути', 'Поступила', 'Приостановлен']
-
 export const VALIDATION_MESSAGES = {
   required: 'Обязательное поле'
 }

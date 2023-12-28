@@ -32,7 +32,7 @@ export default function DatasetForm({
               values.parent_id = parentId
             }
             if (selectionId) {
-              values.form_id = selectionId
+              values.parent_id = selectionId
             }
             let fullQuery = formQuery
             Object.keys(values).map(key => {

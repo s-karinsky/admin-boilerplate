@@ -191,8 +191,9 @@ export default function DatasetTable({
         initialValues={currentItem}
         onOk={async (values) => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
-          Object.keys(values).forEach(key => {
-            sql = sql.replaceAll(`:${key}`, values[key])
+          const fullParams = { ...values, parent_id: params.id }
+          Object.keys(fullParams).forEach(key => {
+            sql = sql.replaceAll(`:${key}`, fullParams[key])
           })
           const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
           const { data = {} } = response
