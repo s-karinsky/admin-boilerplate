@@ -56,11 +56,16 @@ export const parseJSON = (str, isWarning) => {
   return json
 }
 
-export const replaceQueryFields = (query, values, fields = []) => {
+export const replaceQueryFields = (query, { values = {}, oldValues = {}, fields = [] }) => {
   Object.keys(values).forEach(key => {
     const field = fields.find(item => item.name === key)
     const withQuotes = field ? (field.withQuotes || true) : INJECTED_FIELDS_QUOTES[key]
     query = query.replaceAll(`:${key}`, withQuotes ? `'${values[key] ?? ''}'` : (values[key] ?? ''))
+  })
+  Object.keys(oldValues).forEach(key => {
+    const field = fields.find(item => item.name === key)
+    const withQuotes = field ? (field.withQuotes || true) : INJECTED_FIELDS_QUOTES[key]
+    query = query.replaceAll(`:~${key}`, withQuotes ? `'${values[key] ?? ''}'` : (values[key] ?? ''))
   })
   return query
 }

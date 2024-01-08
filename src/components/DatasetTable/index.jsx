@@ -190,7 +190,7 @@ export default function DatasetTable({
         initialValues={currentItem}
         onOk={async (values) => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
-          sql = replaceQueryFields(sql, { ...values, parent_id: params.id }, fields)
+          sql = replaceQueryFields(sql, { values: { ...values, parent_id: params.id }, oldValues: currentItem, fields })
           const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
           const { data = {} } = response
           if (data.status === 'error') {

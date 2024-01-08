@@ -35,7 +35,7 @@ export default function DatasetForm({
             if (selectionId) {
               values.parent_id = selectionId
             }
-            const fullQuery = replaceQueryFields(formQuery, values, fields)
+            const fullQuery = replaceQueryFields(formQuery, { values, oldValues: initialValues, fields })
             Modal.info({
               width: 800,
               title: 'Информация',
