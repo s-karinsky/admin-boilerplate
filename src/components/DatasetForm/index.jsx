@@ -2,6 +2,7 @@ import { Modal, Form, Button, Space, Typography } from 'antd'
 import { SettingOutlined } from '@ant-design/icons'
 import FormField from '../FormField'
 import DndModal from '../DndModal'
+import { replaceQueryFields } from '../../utils/utils'
 
 const { Text } = Typography
 
@@ -34,10 +35,7 @@ export default function DatasetForm({
             if (selectionId) {
               values.parent_id = selectionId
             }
-            let fullQuery = formQuery
-            Object.keys(values).map(key => {
-              fullQuery = fullQuery.replaceAll(`:${key}`, values[key])
-            })
+            const fullQuery = replaceQueryFields(formQuery, values, fields)
             Modal.info({
               width: 800,
               title: 'Информация',

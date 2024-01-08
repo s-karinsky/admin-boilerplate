@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 import { get as _get, keyBy, eq } from 'lodash'
 import axios from './axios'
 import { toFormData, parseJSON } from './utils'
+import { TYPES_WITH_QUOTES } from '../consts'
 
 export const useAuthorization = ({ token, u_hash }) => useQuery(['authorization', { token, u_hash }], async () => {
   if (!token || !u_hash) return { authorized: false }
@@ -107,6 +108,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
       order: parseJSON(item.order)?.order
     }
     const field = parseJSON(item.field) || {}
+
     let parts = []
     if (sqlSelect.select) {
       parts = sqlSelect.select.split(',').map(item => {
@@ -121,7 +123,15 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
         }
       })
     }
-    
+
+    Object.keys(field).forEach(name => {
+      if (!field[name].type) {
+        field[name].with_quotes = true
+      } else {
+        field[name].with_quotes = !!TYPES_WITH_QUOTES.find(type => field[name].type.indexOf(type) === 0)
+      }
+    })
+
     if (!acc.select.find(item => !eq(item, sqlSelect))) {
       acc.select.push(sqlSelect)
     }

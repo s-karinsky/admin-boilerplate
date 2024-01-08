@@ -8,7 +8,7 @@ import DatasetForm from '../DatasetForm'
 import { ModalSqlError } from '../SqlError'
 import axios from '../../utils/axios'
 import { sqlSelect } from '../../utils/sql'
-import { parseJSON } from '../../utils/utils'
+import { parseJSON, replaceQueryFields } from '../../utils/utils'
 import styles from './styles.module.scss'
 
 const getCellsWidth = (route, selectionId) => parseJSON(localStorage.getItem(`${route}-${selectionId}-cell-size`)) || {}
@@ -149,7 +149,6 @@ export default function DatasetTable({
       }
     })
   }, [selection, data])
-
   const currentItem = useMemo(() => data.find(item => String(item.id) === String(itemId)), [data, itemId])
 
   return (
@@ -191,10 +190,7 @@ export default function DatasetTable({
         initialValues={currentItem}
         onOk={async (values) => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
-          const fullParams = { ...values, parent_id: params.id }
-          Object.keys(fullParams).forEach(key => {
-            sql = sql.replaceAll(`:${key}`, fullParams[key])
-          })
+          sql = replaceQueryFields(sql, { ...values, parent_id: params.id }, fields)
           const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
           const { data = {} } = response
           if (data.status === 'error') {

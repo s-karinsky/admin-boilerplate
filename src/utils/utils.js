@@ -1,5 +1,6 @@
 import { map, uniq, orderBy } from 'lodash'
 import dayjs from 'dayjs'
+import { INJECTED_FIELDS_QUOTES } from '../consts'
 
 export const capitalizeFirstLetter = str => {
   return str[0].toUpperCase() + str.substr(1)
@@ -53,4 +54,13 @@ export const parseJSON = (str, isWarning) => {
     if (isWarning) console.warn(e)
   }
   return json
+}
+
+export const replaceQueryFields = (query, values, fields = []) => {
+  Object.keys(values).forEach(key => {
+    const field = fields.find(item => item.name === key)
+    const withQuotes = field ? (field.withQuotes || true) : INJECTED_FIELDS_QUOTES[key]
+    query = query.replaceAll(`:${key}`, withQuotes ? `'${values[key] ?? ''}'` : (values[key] ?? ''))
+  })
+  return query
 }
