@@ -38,8 +38,10 @@ export default function DatasetTable({
     if (response.data?.status === 'error') {
       throw new Error(response.data?.message)
     }
-    const data = response.data?.data
-    return data.map(item => mapValues(item, value => parseJSON(value) || value))
+    const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
+    const title = parentId ? data[0]?.selection_name : ''
+    const list = parentId ? data.slice(1) : data
+    return { title, list }
   }, {
     onError: (error) => {
       const params = {}
@@ -104,7 +106,8 @@ export default function DatasetTable({
   }, [fields, widthByIndex, selection])
 
   const dataSource = useMemo(() => {
-    return data.map(item => {
+    if (!data?.list) return []
+    return data.list.map(item => {
       const buttons = []
       if (deleteQuery.d1) {
         buttons.push(
@@ -148,8 +151,8 @@ export default function DatasetTable({
         _buttons: <div style={{ whiteSpace: 'nowrap' }}>{buttons}</div>
       }
     })
-  }, [selection, data])
-  const currentItem = useMemo(() => data.find(item => String(item.id) === String(itemId)), [data, itemId])
+  }, [selection, data?.list])
+  const currentItem = useMemo(() => data?.list && data.list.find(item => String(item.id) === String(itemId)), [data?.list, itemId])
 
   return (
     <>
@@ -159,7 +162,7 @@ export default function DatasetTable({
         style={{ margin: '0 20px 20px' }}
       >
         <Col>
-          <Typography.Title>{selection.name}</Typography.Title>
+          <Typography.Title>{data?.title || selection.name}</Typography.Title>
         </Col>
         <Col>
           {!!insert.i1 && <Button
