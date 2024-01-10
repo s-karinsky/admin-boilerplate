@@ -31,8 +31,10 @@ export default function DatasetTable({
   const [ widthByIndex, setWidthByIndex ] = useState(getCellsWidth(route, selectionId))
   const params = {}
   searchParams.forEach((value, key) => params[key] = value)
-  if (params.id) params.id = parseInt(params.id)
-  else params.id = parseInt(selectionId)
+  // if (params.id) params.id = parseInt(params.id)
+  // else params.id = parseInt(selectionId)
+
+  if (!params[keylabel]) params[keylabel] = parseInt(selectionId)
 
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
@@ -150,7 +152,7 @@ export default function DatasetTable({
           <MenuOutlined
             onClick={e => {
               e.stopPropagation()
-              navigate(`/metaadm/${selectionId}/list/30?id=${item[keylabel]}`)
+              navigate(`/metaadm/${selectionId}/list/30?id=${item.id}`)
             }}
           />
         )

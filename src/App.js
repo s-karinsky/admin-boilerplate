@@ -46,8 +46,8 @@ function App() {
         <Route path='/' element={<Layout user={user.data} />}>
           <Route path='/users' element={<PageUsers />} />
           <Route path='/users/:id' element={<PageUser />} />
-          <Route path='/metaadm/:parentId/list/:selectionId/:itemId?' element={<PageDataset />} />
           <Route path='/metaadm/:selectionId/:itemId?' element={<PageDataset />} />
+          <Route path='/metaadm/:parentId/list/:selectionId/:itemId?' element={<PageDataset />} />
           <Route path='/metabase/:selectionId/:itemId?' element={<PageDataset />} />
         </Route>
         <Route path='/login' element={<PageLogin />} />
