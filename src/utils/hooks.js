@@ -157,6 +157,14 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     deleteQuery: {},
     select: []
   })
+   
+  config.keylabel = ''
+  Object.keys(config.fields).forEach(name => {
+    const field = config.fields[name]
+    if (field.keylable && field.keylable.trim() === 'Y') {
+      config.keylabel = name
+    }
+  })
 
   config.fields = Object.keys(config.fields)
     .sort((a, b) => config.fields[a].order - config.fields[b].order)

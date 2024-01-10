@@ -21,6 +21,7 @@ export default function DatasetTable({
   deleteQuery = {},
   selection = {},
   queryId = {},
+  keylabel,
   route
 }) {
   const navigate = useNavigate()
@@ -46,14 +47,22 @@ export default function DatasetTable({
     onError: (error) => {
       const params = {}
       searchParams.forEach((value, key) => params[key] = value)
-      if (params.id) params.id = parseInt(params.id) + 1
+      if (params.id) params.id = parseInt(params.id)
       ModalSqlError({ message: error?.message, query: sqlSelect(select[0], params) })
     },
     retry: 0
   })
+
   useEffect(() => {
     setWidthByIndex(getCellsWidth(route, selectionId))
   }, [selectionId])
+
+  useEffect(() => {
+    if (keylabel) return
+    Modal.warning({
+      title: 'Ключевое поле не найдено'
+    })
+  }, [keylabel])
 
   const handleResize = (event, field) => {
     const el = event.target
@@ -141,7 +150,7 @@ export default function DatasetTable({
           <MenuOutlined
             onClick={e => {
               e.stopPropagation()
-              navigate(`/metaadm/${selectionId}/list/30?id=${item.id}`)
+              navigate(`/metaadm/${selectionId}/list/30?id=${item[keylabel]}`)
             }}
           />
         )
@@ -152,7 +161,7 @@ export default function DatasetTable({
       }
     })
   }, [selection, data?.list])
-  const currentItem = useMemo(() => data?.list && data.list.find(item => String(item.id) === String(itemId)), [data?.list, itemId])
+  const currentItem = useMemo(() => data?.list && data.list.find(item => String(item[keylabel]) === String(itemId)), [data?.list, itemId])
 
   return (
     <>
@@ -177,9 +186,9 @@ export default function DatasetTable({
         columns={columns}
         dataSource={dataSource}
         isLoading={isLoading}
-        rowKey={({ id }) => id}
+        rowKey={record => record[keylabel]}
         onRow={record => ({
-          onClick: () => navigate(`${location.pathname}/${record.id}${location.search}`)
+          onClick: () => navigate(`${location.pathname}/${record[keylabel]}${location.search}`)
         })}
       />
       {isModal && <DatasetForm
