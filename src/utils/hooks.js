@@ -123,13 +123,24 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
         }
       })
     }
-
     Object.keys(field).forEach(name => {
-      if (!field[name].type) {
-        field[name].with_quotes = true
+      const f = field[name]
+      if (!f.type) {
+        f.with_quotes = true
       } else {
-        field[name].with_quotes = !!TYPES_WITH_QUOTES.find(type => field[name].type.indexOf(type) === 0)
+        f.with_quotes = !!TYPES_WITH_QUOTES.find(type => f.type.indexOf(type) === 0)
       }
+      const props = {}
+      if (f.label) {
+        props.label = f.label
+      }
+      if (f.answer_options_type) {
+        props.type = 'select'
+        props.options = f.answer_options_type === 'enumeration' ?
+          f.answer_options.map(item => ({ label: Object.keys(item)[0], value: Object.values(item)[0] })) :
+          []
+      }
+      f.props = props
     })
 
     if (!acc.select.find(item => !eq(item, sqlSelect))) {

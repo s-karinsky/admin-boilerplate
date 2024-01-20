@@ -79,7 +79,7 @@ export default function DatasetForm({
           <FormField
             key={field.name}
             name={field.name}
-            label={field?.label}
+            {...field.props}
           />
         ))}
       </Form>
