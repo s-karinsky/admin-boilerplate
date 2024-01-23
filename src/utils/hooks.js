@@ -139,6 +139,9 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
         props.options = f.answer_options_type === 'enumeration' ?
           f.answer_options.map(item => ({ label: Object.keys(item)[0], value: Object.values(item)[0] })) :
           []
+        if (f.answer_options_type === 'sql_query') {
+          props.asyncOptions = f.answer_options
+        }
       }
       f.props = props
     })
@@ -188,3 +191,15 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
 }, {
   staleTime: 600 * 1000
 })
+
+
+export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], async () => {
+  if (!asyncOptions) return {}
+  const { sql_query, view_field, write_field } = asyncOptions
+  const response = await axios.postWithAuth('/query/select', { sql: sql_query })
+  const data = response.data?.data || []
+  return data.map(item => ({
+    value: item[write_field],
+    label: item[view_field]
+  }))
+}, params)

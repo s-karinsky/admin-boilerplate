@@ -1,5 +1,6 @@
 import { Form, Input, InputNumber, DatePicker, Select } from 'antd'
 import { MaskedInput } from 'antd-mask-input'
+import { useSelectOptions } from '../../utils/hooks'
 
 export default function FormField({
   label,
@@ -11,6 +12,7 @@ export default function FormField({
   width,
   labelType,
   mask,
+  asyncOptions,
   ...rest
 }) {
   let child = null
@@ -23,6 +25,13 @@ export default function FormField({
       },
       ...rest
     }
+  }
+
+  const data = useSelectOptions(name, asyncOptions, { enabled: !!asyncOptions })
+  console.log(data)
+  let options = rest.options || []
+  if (asyncOptions && !data.isLoading) {
+    options = data.data
   }
 
   switch (type) {
@@ -38,6 +47,7 @@ export default function FormField({
       child = isEdit ?
         <Select
           {...rest}
+          options={options}
         /> :
         <div style={{ fontSize: 16, fontWeight: 'normal', ...rest.style }}>
           {text}
