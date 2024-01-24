@@ -11,6 +11,7 @@ export default function FormField({
   width,
   labelType,
   mask,
+  hidden,
   ...rest
 }) {
   let child = null
@@ -89,6 +90,7 @@ export default function FormField({
       name={name}
       style={{ fontWeight: 'bold', width }}
       rules={isEdit ? rules : undefined}
+      hidden={hidden}
     >
       {child}
     </Form.Item>
