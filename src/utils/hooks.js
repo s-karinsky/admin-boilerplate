@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { get as _get, keyBy, eq } from 'lodash'
+import { get as _get, keyBy, eq, fromPairs } from 'lodash'
 import axios from './axios'
 import { toFormData, parseJSON } from './utils'
 import { TYPES_WITH_QUOTES } from '../consts'
@@ -99,6 +99,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
       left join ${table} d on d.id_ref=v.id and d.tip='delete_selection'
     where m.tip='forma' and m.id=${name}`.replaceAll('\n', ' ')
   })
+  const optionsPromise = []
   const data = response.data?.data || []
   const config = data.reduce((acc, item) => {
     let sqlSelect = {
@@ -123,7 +124,8 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
         }
       })
     }
-    Object.keys(field).forEach(name => {
+
+    Object.keys(field).forEach((name) => {
       const f = field[name]
       if (!f.type) {
         f.with_quotes = true
@@ -140,7 +142,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
           f.answer_options.map(item => ({ label: Object.keys(item)[0], value: Object.values(item)[0] })) :
           []
         if (f.answer_options_type === 'sql_query') {
-          props.asyncOptions = f.answer_options
+          optionsPromise.push(fetchSelectOptions(f.answer_options)().then(options => ([name, options])))
         }
       }
       f.props = props
@@ -149,6 +151,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     if (!acc.select.find(item => !eq(item, sqlSelect))) {
       acc.select.push(sqlSelect)
     }
+    
     acc.selection = { ...acc.selection, ...parseJSON(item.selection) }
     acc.fields = { ...acc.fields, ...field }
     acc.insert = { ...acc.insert, ...parseJSON(item.insert) }
@@ -171,12 +174,26 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     deleteQuery: {},
     select: []
   })
-   
+  
+  const options = await Promise.all(optionsPromise)
+  const optionsMap = fromPairs(options)
+
   config.keylabel = ''
   Object.keys(config.fields).forEach(name => {
     const field = config.fields[name]
     if (field.keylable && field.keylable.trim() === 'Y') {
       config.keylabel = name
+    }
+    if (optionsMap[name]) {
+      let options = optionsMap[name]
+      if (!TYPES_WITH_QUOTES.includes(field.type)) {
+        options = options.map(({ label, value }) => ({ label, value: parseInt(value) }))
+      }
+
+      field.props = {
+        ...field.props,
+        options
+      }
     }
   })
 
@@ -192,8 +209,7 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
   staleTime: 600 * 1000
 })
 
-
-export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], async () => {
+export const fetchSelectOptions = (asyncOptions) => async () => {
   if (!asyncOptions) return {}
   const { sql_query, view_field, write_field } = asyncOptions
   const response = await axios.postWithAuth('/query/select', { sql: sql_query })
@@ -202,4 +218,6 @@ export const useSelectOptions = (name, asyncOptions, params) => useQuery(['selec
     value: item[write_field],
     label: item[view_field]
   }))
-}, params)
+}
+
+export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], fetchSelectOptions(asyncOptions), params)

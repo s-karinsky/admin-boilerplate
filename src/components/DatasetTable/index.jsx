@@ -106,7 +106,14 @@ export default function DatasetTable({
         }
         <span className={styles.tableLabel}>{field.label}</span>
       </>,
-      dataIndex: field.name
+      dataIndex: field.name,
+      render: val => {
+        if (field.props && field.props.type === 'select' && Array.isArray(field.props.options)) {
+          const item = field.props.options.find(item => item.value === val) || {}
+          return item.label || item.value
+        }
+        return val
+      }
     }))
     cols.push({
       title: '',
