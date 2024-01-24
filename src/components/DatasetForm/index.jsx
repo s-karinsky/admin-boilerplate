@@ -75,7 +75,7 @@ export default function DatasetForm({
         form={form}
         onFinish={onOk}
       >
-        {fields.map(field => (
+        {fields.filter(field => field.visible !== 'N').map(field => (
           <FormField
             key={field.name}
             name={field.name}

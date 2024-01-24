@@ -95,7 +95,7 @@ export default function DatasetTable({
 
   const isModal = !isLoading && !!itemId
   const columns = useMemo(() => {
-    const cols = fields.map((field, i) => ({
+    const cols = fields.filter(field => field.visible !== 'N').map((field, i) => ({
       width: widthByIndex[field.name],
       title: <>
         {i < fields.length &&
