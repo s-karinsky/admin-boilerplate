@@ -6,6 +6,8 @@ import { replaceQueryFields } from '../../utils/utils'
 
 const { Text } = Typography
 
+const usingTypes = ['date', 'time', 'memo']
+
 export default function DatasetForm({
   query,
   formQuery,
@@ -80,6 +82,8 @@ export default function DatasetForm({
             key={field.name}
             name={field.name}
             hidden={field.visible === 'N'}
+            type={usingTypes.includes(field.type) ? field.type : undefined}
+            width='100%'
             {...field.props}
           />
         ))}

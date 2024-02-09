@@ -29,7 +29,12 @@ export default function FormField({
   switch (type) {
     case 'date':
       child = isEdit ?
-        <DatePicker format='DD.MM.YYYY' placeholder='Выберите дату' {...rest} /> :
+        <DatePicker
+          format={type === 'time' ? 'HH:mm:ss' : 'DD.MM.YYYY'}
+          placeholder={type === 'time' ? 'Выберите время' : 'Выберите дату'}
+          mode={type}
+          {...rest}
+        /> :
         <div style={{ fontSize: 16, fontWeight: 'normal', ...rest.style }}>
           {text}
         </div>
@@ -55,8 +60,9 @@ export default function FormField({
       break
 
     case 'textarea':
+    case 'memo':
       child = isEdit ?
-        <Input.TextArea {...rest} autoSize /> :
+        <Input.TextArea {...rest} rows={6} /> :
         <div style={{ fontSize: 16, fontWeight: 'normal', ...rest.style }}>
           {text}
         </div>
