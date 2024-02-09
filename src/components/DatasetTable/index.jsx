@@ -3,6 +3,7 @@ import { Table, Typography, Row, Col, Button, Modal } from 'antd'
 import { useQuery } from 'react-query'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { mapValues } from 'lodash'
+import dayjs from 'dayjs'
 import { MenuOutlined, ExclamationCircleFilled, DeleteOutlined } from '@ant-design/icons'
 import DatasetForm from '../DatasetForm'
 import { ModalSqlError } from '../SqlError'
@@ -211,6 +212,9 @@ export default function DatasetTable({
         initialValues={currentItem}
         onOk={async (values) => {
           let sql = itemId === 'create' ? (insert?.i1 || '') : (update?.u1 || '')
+          Object.keys(values).map(key => {
+            if (dayjs.isDayjs(values[key])) values[key] = dayjs(values[key]).format('YYYY-MM-DD')
+          })
           sql = replaceQueryFields(sql, { values: { ...values, parent_id: params.id }, oldValues: currentItem, fields })
           const response = await axios.postWithAuth(`/query/${itemId === 'create' ? 'insert' : 'update'}`, { sql })
           const { data = {} } = response
