@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, DatePicker, Select } from 'antd'
+import { Form, Input, InputNumber, DatePicker, TimePicker, Select } from 'antd'
 import { MaskedInput } from 'antd-mask-input'
 
 export default function FormField({
@@ -27,11 +27,24 @@ export default function FormField({
   }
 
   switch (type) {
+    case 'time':
+      child = isEdit ?
+        <TimePicker
+          format={'HH:mm:ss'}
+          placeholder={'Выберите время'}
+          mode={type}
+          {...rest}
+        /> :
+        <div style={{ fontSize: 16, fontWeight: 'normal', ...rest.style }}>
+          {text}
+        </div>
+      break
+
     case 'date':
       child = isEdit ?
         <DatePicker
-          format={type === 'time' ? 'HH:mm:ss' : 'DD.MM.YYYY'}
-          placeholder={type === 'time' ? 'Выберите время' : 'Выберите дату'}
+          format={'DD.MM.YYYY'}
+          placeholder={'Выберите дату'}
           mode={type}
           {...rest}
         /> :
