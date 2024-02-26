@@ -27,6 +27,7 @@ function getItem(label, key, icon, children, type) {
 }
 
 const MENU_ITEMS = {
+  maksense: getItem(<Link to='/makesense'>Makesense</Link>, 'makesense'),
   users: getItem(<Link to='/users'>Users</Link>, 'users', <UserOutlined />),
 }
 
@@ -53,7 +54,7 @@ export default function PageLayout({ user = {} }) {
 
   const items = useMemo(() => {
     if (user.u_role !== '4') return []
-    const items = [MENU_ITEMS.users]
+    const items = [MENU_ITEMS.maksense, MENU_ITEMS.users]
 
     result.filter(nav => nav.isSuccess).forEach((nav, i) => {
       const group = groups[i]
