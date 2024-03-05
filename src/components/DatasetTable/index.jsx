@@ -45,6 +45,17 @@ export default function DatasetTable({
     const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
     const title = parentId ? data[0]?.selection_name : ''
     const list = parentId ? data.slice(1) : data
+    const dateFields = fields.filter(item => item.type === 'date').map(item => item.name)
+
+    if (dateFields.length) {
+      list.forEach(item => {
+        dateFields.forEach(field => {
+          if (!item[field]) return
+          item[field] = dayjs(item[field])
+        })
+      })
+    }
+
     return { title, list }
   }, {
     onError: (error) => {
@@ -112,6 +123,9 @@ export default function DatasetTable({
         if (field.props && field.props.type === 'select' && Array.isArray(field.props.options)) {
           const item = field.props.options.find(item => item.value === val) || {}
           return item.label || item.value
+        }
+        if (dayjs.isDayjs(val)) {
+          return val.format('DD.MM.YYYY')
         }
         return val
       }
