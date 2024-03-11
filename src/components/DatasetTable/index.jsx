@@ -121,7 +121,7 @@ export default function DatasetTable({
       dataIndex: field.name,
       render: val => {
         if (field.props && field.props.type === 'select' && Array.isArray(field.props.options)) {
-          const item = field.props.options.find(item => item.value === val) || {}
+          const item = field.props.options.find(item => String(item.value) === String(val)) || {}
           return item.label || item.value
         }
         if (dayjs.isDayjs(val)) {

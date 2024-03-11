@@ -186,9 +186,9 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     }
     if (optionsMap[name]) {
       let options = optionsMap[name]
-      if (!TYPES_WITH_QUOTES.includes(field.type)) {
-        options = options.map(({ label, value }) => ({ label, value: parseInt(value) }))
-      }
+      // if (!TYPES_WITH_QUOTES.includes(field.type)) {
+      //   options = options.map(({ label, value }) => ({ label, value: parseInt(value) }))
+      // }
 
       field.props = {
         ...field.props,
@@ -215,7 +215,7 @@ export const fetchSelectOptions = (asyncOptions) => async () => {
   const response = await axios.postWithAuth('/query/select', { sql: sql_query })
   const data = response.data?.data || []
   return data.map(item => ({
-    value: item[write_field],
+    value: String(item[write_field]),
     label: item[view_field]
   }))
 }
