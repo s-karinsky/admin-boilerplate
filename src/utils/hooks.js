@@ -1,6 +1,8 @@
 import { useQuery } from 'react-query'
-import { get as _get, keyBy, eq, fromPairs } from 'lodash'
+import { get as _get, keyBy, eq, fromPairs, mapValues } from 'lodash'
+import { Link } from 'react-router-dom'
 import axios from './axios'
+import { sqlSelect } from './sql'
 import { toFormData, parseJSON } from './utils'
 import { TYPES_WITH_QUOTES } from '../consts'
 
@@ -85,7 +87,8 @@ useFormDescription
   }]
 }
 */
-export const useFormDescription = (name, table = 'metabase') => useQuery([table, name], async () => {
+
+const getFormDescription = (table, name) => async () => {
   const response = await axios.postWithAuth('/query/select', {
     sql: `select v.pole as selection, s.pole as \`select\`, s.id as id_select, f.pole as \`from\`, w.pole as \`where\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, t.id as id_insert, u.pole as \`update\`, u.id as id_update, d.pole as \`delete\`, d.id as id_delete from ${table} m
       left join ${table} v on v.id_ref=m.id and v.tip='selection'
@@ -205,7 +208,9 @@ export const useFormDescription = (name, table = 'metabase') => useQuery([table,
     }))
 
   return config
-}, {
+}
+
+export const useFormDescription = (name, table = 'metabase') => useQuery([table, name], getFormDescription(table, name), {
   staleTime: 600 * 1000
 })
 
@@ -221,3 +226,59 @@ export const fetchSelectOptions = (asyncOptions) => async () => {
 }
 
 export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], fetchSelectOptions(asyncOptions), params)
+
+export const useMainNav = () => useQuery('main-nav', async () => {
+  const selectionId = 65
+  const parentId = 'metaadm'
+  const menu = await getFormDescription(parentId, selectionId)()
+  const { select } = menu || {}
+  const params = {
+    keylabel: selectionId
+  }
+  const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
+  if (response.data?.status === 'error') {
+    throw new Error(response.data?.message)
+  }
+  const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
+  const names = data.map(item => `name="${item.name}"`)
+  const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: names.join(' OR ') }) })
+  const rootNames = (roots.data?.data || []).map(item => {
+    let forms = data.find(form => form.name === item.name) || []
+    forms = forms.forms?.split(',')
+    return { ...item, forms }
+  })
+
+  const forms = data.reduce((acc, item) => [
+    ...acc,
+    ...(item.forms || '').split(',').map(form => `name="${form}"`)
+  ], [])
+  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: forms.join(' OR ') }) })
+  let subitems = res.data?.data || []
+  const formsId = data.reduce((acc, item) => [
+    ...acc,
+    ...(item.forms || '').split(',').map(form => `JSON_EXTRACT(pole, "$.lang_values_name")="${form}"`)
+  ], [])
+  const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.join(' OR ') }) })
+  const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
+  
+  subitems = subitems.map(item => {
+    const data = subitemsData.find(subitem => subitem.lang_values_name === item.name)
+    return { ...item, id: data.id }
+  })
+  
+  const navItems = []
+  rootNames.forEach(root => {
+    const sub = subitems.filter(item => root.forms.includes(item.name))
+    const item = {
+      key: root.name,
+      label: root.value,
+      children: sub.map(subitem => ({
+        key: subitem.name,
+        label: <Link to={`/metabase/${subitem.id}`}>{subitem.value}</Link>
+      }))
+    }
+    navItems.push(item)
+  })
+
+  return navItems
+})

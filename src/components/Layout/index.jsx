@@ -9,8 +9,9 @@ import {
 } from '@ant-design/icons'
 import Cookies from 'universal-cookie'
 import { Avatar, Button, Dropdown, Menu, Space, Layout, Row, Col } from 'antd'
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
+import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useQueries } from 'react-query'
+import { useMainNav } from '../../utils/hooks'
 import { getSelections } from '../../utils/api'
 import styles from './styles.module.scss'
 
@@ -44,31 +45,31 @@ const groups = [{
 export default function PageLayout({ user = {} }) {
   const [ collapsed, setCollapsed ] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
-  const result = useQueries(
-    groups.map(item => ({
-      queryKey: [`menu-${item.name}`],
-      queryFn: getSelections(item.name)
-    }))
-  )
+  const nav = useMainNav()
+  // const result = useQueries(
+  //   groups.map(item => ({
+  //     queryKey: [`menu-${item.name}`],
+  //     queryFn: getSelections(item.name)
+  //   }))
+  // )
 
-  const items = useMemo(() => {
-    if (user.u_role !== '4') return []
-    const items = [MENU_ITEMS.maksense, MENU_ITEMS.users]
+  // const items = useMemo(() => {
+  //   if (user.u_role !== '4') return []
+  //   const items = [MENU_ITEMS.maksense, MENU_ITEMS.users]
 
-    result.filter(nav => nav.isSuccess).forEach((nav, i) => {
-      const group = groups[i]
-      const menuItem = getItem(
-        group.label,
-        group.name,
-        group.icon,
-        nav.data.map(item => getItem(<Link to={`/${group.name}/${item.id}`}>{item.label}</Link>, `${group.name}-${item.id}`))
-      )
-      items.push(menuItem)
-    })
+  //   result.filter(nav => nav.isSuccess).forEach((nav, i) => {
+  //     const group = groups[i]
+  //     const menuItem = getItem(
+  //       group.label,
+  //       group.name,
+  //       group.icon,
+  //       nav.data.map(item => getItem(<Link to={`/${group.name}/${item.id}`}>{item.label}</Link>, `${group.name}-${item.id}`))
+  //     )
+  //     items.push(menuItem)
+  //   })
 
-    return items
-  }, [user.u_role, result])
+  //   return items
+  // }, [user.u_role, result])
 
   const toggleCollapsed = () => setCollapsed(!collapsed)
 
@@ -136,7 +137,7 @@ export default function PageLayout({ user = {} }) {
         <Sider collapsed={collapsed}>
           <Menu
             theme='dark'
-            items={items}
+            items={nav.data}
             mode='inline'
           />
         </Sider>
