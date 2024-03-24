@@ -252,13 +252,13 @@ export const useMainNav = () => useQuery('main-nav', async () => {
     ...acc,
     ...(item.forms || '').split(',').map(form => `name="${form}"`)
   ], [])
-  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: forms.join(' OR ') }) })
+  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: forms.join(' OR ') }) })
   let subitems = res.data?.data || []
   const formsId = data.reduce((acc, item) => [
     ...acc,
-    ...(item.forms || '').split(',').map(form => `JSON_EXTRACT(pole, "$.lang_values_name")="${form}"`)
+    ...(item.forms || '').split(',').map(form => ['JSON_EXTRACT(pole, "$.lang_values_name")', `"${form}"`])
   ], [])
-  const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.join(' OR ') }) })
+  const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('=')).join(' OR ') }) })
   const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
   
   subitems = subitems.map(item => {
@@ -280,5 +280,15 @@ export const useMainNav = () => useQuery('main-nav', async () => {
     navItems.push(item)
   })
 
+  let res3 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('!=')).join(' AND ') }) })
+  res3 = (res3.data?.data || [])
+  res3.forEach(item => {
+    const json = parseJSON(item.pole)
+    navItems.push({
+      key: item.id,
+      label: <Link to={`/metabase/${item.id}`}>{json.name}</Link>
+    })
+  })
+  console.log(navItems)
   return navItems
 })
