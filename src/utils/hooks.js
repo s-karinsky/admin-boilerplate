@@ -289,6 +289,5 @@ export const useMainNav = () => useQuery('main-nav', async () => {
       label: <Link to={`/metabase/${item.id}`}>{json.name}</Link>
     })
   })
-  console.log(navItems)
   return navItems
 })
