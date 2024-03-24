@@ -289,5 +289,24 @@ export const useMainNav = () => useQuery('main-nav', async () => {
       label: <Link to={`/metabase/${item.id}`}>{json.name}</Link>
     })
   })
+
+  res3 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metaadm', where: 'tip="forma"'}) })
+  const adm = {
+    key: 'admin',
+    label: 'Admin',
+    children: []
+  }
+  res3 = (res3.data?.data || [])
+  console.log(res3)
+  res3.forEach(item => {
+    const json = parseJSON(item.pole)
+    if (typeof json.name !== 'string') return
+    adm.children.push({
+      key: item.id,
+      label: <Link to={`/metaadm/${item.id}`}>{json.name}</Link>
+    })
+  })
+  navItems.push(adm)
+
   return navItems
 })
