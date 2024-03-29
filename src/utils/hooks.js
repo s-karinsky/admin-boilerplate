@@ -246,7 +246,7 @@ export const useMainNav = () => useQuery('main-nav', async () => {
     let forms = data.find(form => form.name === item.name) || []
     forms = forms.forms?.split(',')
     return { ...item, forms }
-  })
+  }).filter((item, i, arr) => arr.findLastIndex(form => form.name === item.name) !== i)
 
   const forms = data.reduce((acc, item) => [
     ...acc,
@@ -260,10 +260,9 @@ export const useMainNav = () => useQuery('main-nav', async () => {
   ], [])
   const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('=')).join(' OR ') }) })
   const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
-  
   subitems = subitems.map(item => {
     const data = subitemsData.find(subitem => subitem.lang_values_name === item.name)
-    return { ...item, id: data.id }
+    return { ...item, id: data?.id }
   })
   
   const navItems = []
@@ -297,12 +296,11 @@ export const useMainNav = () => useQuery('main-nav', async () => {
     children: []
   }
   res3 = (res3.data?.data || [])
-  console.log(res3)
   res3.forEach(item => {
     const json = parseJSON(item.pole)
     if (typeof json.name !== 'string') return
     adm.children.push({
-      key: item.id,
+      key: `adm-${item.id}`,
       label: <Link to={`/metaadm/${item.id}`}>{json.name}</Link>
     })
   })

@@ -7,7 +7,7 @@ export default function PageDataset() {
   const { selectionId } = useParams()
   const rootRoute = location.pathname.split('/')[1]
   const formDesc = useFormDescription(selectionId, rootRoute)
-  
+
   return !formDesc.isLoading && <DatasetTable
     {...formDesc?.data}
     route={rootRoute}
