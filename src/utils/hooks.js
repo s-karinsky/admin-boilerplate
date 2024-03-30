@@ -242,31 +242,34 @@ export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId],
   if (!response.data?.data?.length) {
     return []
   }
+
   const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
   const names = data.map(item => `name="${item.name}"`)
-  const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: names.join(' OR ') }) })
-  const rootNames = (roots.data?.data || []).map(item => {
-    let forms = data.find(form => form.name === item.name) || []
-    forms = forms.forms?.split(',') || []
-    return { ...item, forms }
-  }).filter((item, i, arr) => arr.findLastIndex(form => form.name === item.name) !== i)
+  const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: `(${names.join(' OR ')}) AND id_lang=${langId}` }) })
+  const rootNames = data.map((item, i) => {
+    let lang = (roots.data?.data || []).find(form => form.name === item.name) || {}
+    return {
+      name: lang.name || `Unknown ${i + 1}`,
+      value: lang.value || `Unknown ${i + 1}`,
+      forms: item.forms?.split(',') || []
+    }
+  })
 
   const forms = data.reduce((acc, item) => [
     ...acc,
     ...(item.forms || '').split(',').map(form => `name="${form}"`)
   ], [])
   const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${forms.join(' OR ')}) AND id_lang=${langId}` }) })
-  let subitems = res.data?.data || []
-  console.log(subitems)
+
   const formsId = data.reduce((acc, item) => [
     ...acc,
     ...(item.forms || '').split(',').map(form => ['JSON_EXTRACT(pole, "$.lang_values_name")', `"${form}"`])
   ], [])
   const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('=')).join(' OR ') }) })
   const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
-  subitems = subitems.map(item => {
-    const data = subitemsData.find(subitem => subitem.lang_values_name === item.name)
-    return { ...item, id: data?.id }
+  const subitems = subitemsData.map((item, i) => {
+    const data = (res.data?.data || []).find(subitem => item.lang_values_name === subitem.name)
+    return { name: item.lang_values_name, value: data?.value || `Unknown ${i + 1}`, id: item.id }
   })
 
   const navItems = []
