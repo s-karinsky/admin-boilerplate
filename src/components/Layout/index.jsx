@@ -10,9 +10,8 @@ import {
 import Cookies from 'universal-cookie'
 import { Avatar, Button, Dropdown, Menu, Space, Layout, Row, Col } from 'antd'
 import { Outlet, Link, useNavigate } from 'react-router-dom'
-import { useQueries } from 'react-query'
-import { useMainNav } from '../../utils/hooks'
-import { getSelections } from '../../utils/api'
+import { useMainNav, useLangs } from '../../utils/hooks'
+import { updateLanguage } from '../../utils/api'
 import styles from './styles.module.scss'
 
 const { Header, Sider, Content } = Layout
@@ -42,10 +41,36 @@ const groups = [{
   icon: <FormOutlined />
 }]
 
-export default function PageLayout({ user = {} }) {
+const defaultLang = 1
+
+export default function PageLayout({ user = {}, refetchUser = () => {} }) {
   const [ collapsed, setCollapsed ] = useState(false)
   const navigate = useNavigate()
-  const nav = useMainNav()
+  const nav = useMainNav(user?.u_lang, { enabled: !!user?.u_lang })
+  const langs = useLangs()
+  
+  const currentLang = useMemo(() => {
+    if (!langs.data) return
+    const langId = user?.u_lang || defaultLang
+    const item = langs.data.find(item => String(item.id_lang) === String(langId))
+    return (item || langs.data[0])['ISO 639-1']
+  }, [langs.data, user?.u_lang])
+
+  const menuLangs = useMemo(() => {
+    if (!langs.data) return []
+    return langs.data.map(item => ({
+      label: <span
+        onClick={async () => {
+          await updateLanguage(item.id_lang)
+          refetchUser()
+        }}
+      >
+        {item['ISO 639-1'] || ''}
+      </span>,
+      key: item.id_lang
+    }))
+  }, [langs.data])
+  
   // const result = useQueries(
   //   groups.map(item => ({
   //     queryKey: [`menu-${item.name}`],
@@ -112,24 +137,39 @@ export default function PageLayout({ user = {} }) {
               )}
             </Button>
           </Col>
-          <Col>
-            <Avatar src={user.u_photo} />
-            <Dropdown
-              menu={{ items: userItems }}
-              trigger={['click']}
-            >
-              <a
-                onClick={(e) => e.preventDefault()}
-                className={styles.headerUser}
+          <Col style={{ display: 'flex' }}>
+            <div style={{ marginRight: 50 }}>
+              <Dropdown
+                menu={{ items: menuLangs }}
+                trigger={['click']}
               >
-                <Space>
-                  {user.u_name}
+                <span className={styles.lang}>
+                  {currentLang}
                   <DownOutlined
-                    style={{ fontSize: '10px' }}
+                    style={{ marginLeft: 10, fontSize: '10px' }}
                   />
-                </Space>
-              </a>
-            </Dropdown>
+                </span>
+              </Dropdown>
+            </div>
+            <div>
+              <Avatar src={user.u_photo} />
+              <Dropdown
+                menu={{ items: userItems }}
+                trigger={['click']}
+              >
+                <a
+                  onClick={(e) => e.preventDefault()}
+                  className={styles.headerUser}
+                >
+                  <Space>
+                    {user.u_name}
+                    <DownOutlined
+                      style={{ fontSize: '10px' }}
+                    />
+                  </Space>
+                </a>
+              </Dropdown>
+            </div>
           </Col>
         </Row>
       </Header>

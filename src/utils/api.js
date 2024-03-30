@@ -54,3 +54,8 @@ export const getSelections = (table) => async () => {
     }
   })
 }
+
+export const updateLanguage = async (langId) => {
+  const res = await axios.postWithAuth('/user', { data: JSON.stringify({ u_lang: langId }) })
+  return res
+}

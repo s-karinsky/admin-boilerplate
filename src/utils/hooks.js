@@ -227,7 +227,7 @@ export const fetchSelectOptions = (asyncOptions) => async () => {
 
 export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], fetchSelectOptions(asyncOptions), params)
 
-export const useMainNav = () => useQuery('main-nav', async () => {
+export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId], async () => {
   const selectionId = 65
   const parentId = 'metaadm'
   const menu = await getFormDescription(parentId, selectionId)()
@@ -239,12 +239,15 @@ export const useMainNav = () => useQuery('main-nav', async () => {
   if (response.data?.status === 'error') {
     throw new Error(response.data?.message)
   }
+  if (!response.data?.data?.length) {
+    return []
+  }
   const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
   const names = data.map(item => `name="${item.name}"`)
   const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: names.join(' OR ') }) })
   const rootNames = (roots.data?.data || []).map(item => {
     let forms = data.find(form => form.name === item.name) || []
-    forms = forms.forms?.split(',')
+    forms = forms.forms?.split(',') || []
     return { ...item, forms }
   }).filter((item, i, arr) => arr.findLastIndex(form => form.name === item.name) !== i)
 
@@ -252,8 +255,9 @@ export const useMainNav = () => useQuery('main-nav', async () => {
     ...acc,
     ...(item.forms || '').split(',').map(form => `name="${form}"`)
   ], [])
-  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: forms.join(' OR ') }) })
+  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${forms.join(' OR ')}) AND id_lang=${langId}` }) })
   let subitems = res.data?.data || []
+  console.log(subitems)
   const formsId = data.reduce((acc, item) => [
     ...acc,
     ...(item.forms || '').split(',').map(form => ['JSON_EXTRACT(pole, "$.lang_values_name")', `"${form}"`])
@@ -264,7 +268,7 @@ export const useMainNav = () => useQuery('main-nav', async () => {
     const data = subitemsData.find(subitem => subitem.lang_values_name === item.name)
     return { ...item, id: data?.id }
   })
-  
+
   const navItems = []
   rootNames.forEach(root => {
     const sub = subitems.filter(item => root.forms.includes(item.name))
@@ -307,4 +311,10 @@ export const useMainNav = () => useQuery('main-nav', async () => {
   navItems.push(adm)
 
   return navItems
+}, params)
+
+export const useLangs = () => useQuery(['languages'], async () => {
+  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang', where: 'active=1'}) })
+  const langs = res.data?.data || []
+  return langs
 })

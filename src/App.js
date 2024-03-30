@@ -43,7 +43,7 @@ function App() {
   return (
     <div className='App'>
       <Routes>
-        <Route path='/' element={<Layout user={user.data} />}>
+        <Route path='/' element={<Layout user={user.data} refetchUser={user.refetch} />}>
           <Route path='/users' element={<PageUsers />} />
           <Route path='/users/:id' element={<PageUser />} />
           <Route path='/metaadm/:selectionId/:itemId?' element={<PageDataset />} />
