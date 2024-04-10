@@ -88,7 +88,7 @@ useFormDescription
 }
 */
 
-const getFormDescription = (table, name) => async () => {
+const getFormDescription = (table, name, langId = 1) => async () => {
   const response = await axios.postWithAuth('/query/select', {
     sql: `select v.pole as selection, s.pole as \`select\`, s.id as id_select, f.pole as \`from\`, w.pole as \`where\`, o.pole as \`order\`, i.pole as field, t.pole as \`insert\`, t.id as id_insert, u.pole as \`update\`, u.id as id_update, d.pole as \`delete\`, d.id as id_delete from ${table} m
       left join ${table} v on v.id_ref=m.id and v.tip='selection'
@@ -200,17 +200,30 @@ const getFormDescription = (table, name) => async () => {
     }
   })
 
+  const fieldsWithTranslate = Object.values(config.fields).filter(val => val.lang_values_name).map(val => `name="${val.lang_values_name}"`)
+  const translateData = fieldsWithTranslate.length > 0 ? 
+    await axios.postWithAuth('/query/select', {
+      sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${fieldsWithTranslate.join(' OR ')}) AND id_lang=${langId}` })
+    } )
+    :
+    Promise.resolve({})
+  const tDataMap = (translateData.data?.data || []).reduce((acc, item) => ({
+    ...acc,
+    [item.name]: item.value
+  }), {})
+
   config.fields = Object.keys(config.fields)
     .sort((a, b) => config.fields[a].order - config.fields[b].order)
     .map(name => ({
       name,
-      ...config.fields[name]
+      ...config.fields[name],
+      label: tDataMap[config.fields[name].lang_values_name] || config.fields[name].label
     }))
 
   return config
 }
 
-export const useFormDescription = (name, table = 'metabase') => useQuery([table, name], getFormDescription(table, name), {
+export const useFormDescription = (name, table = 'metabase', langId) => useQuery([table, name, langId], getFormDescription(table, name, langId), {
   staleTime: 600 * 1000
 })
 
@@ -235,6 +248,7 @@ export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId],
   const params = {
     keylabel: selectionId
   }
+  // Базовая выборка родительских пунктов меню
   const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
   if (response.data?.status === 'error') {
     throw new Error(response.data?.message)
@@ -242,9 +256,11 @@ export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId],
   if (!response.data?.data?.length) {
     return []
   }
-
   const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
+  
+  // Формирование условия для выборки названия форм на выбранном языке
   const names = data.map(item => `name="${item.name}"`)
+  if (!names.length) return []
   const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: `(${names.join(' OR ')}) AND id_lang=${langId}` }) })
   const rootNames = data.map((item, i) => {
     let lang = (roots.data?.data || []).find(form => form.name === item.name) || {}
@@ -266,6 +282,7 @@ export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId],
     ...(item.forms || '').split(',').map(form => ['JSON_EXTRACT(pole, "$.lang_values_name")', `"${form}"`])
   ], [])
   const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('=')).join(' OR ') }) })
+
   const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
   const subitems = subitemsData.map((item, i) => {
     const data = (res.data?.data || []).find(subitem => item.lang_values_name === subitem.name)

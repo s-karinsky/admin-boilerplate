@@ -46,9 +46,9 @@ function App() {
         <Route path='/' element={<Layout user={user.data} refetchUser={user.refetch} />}>
           <Route path='/users' element={<PageUsers />} />
           <Route path='/users/:id' element={<PageUser />} />
-          <Route path='/metaadm/:selectionId/:itemId?' element={<PageDataset />} />
-          <Route path='/metaadm/:parentId/list/:selectionId/:itemId?' element={<PageDataset />} />
-          <Route path='/metabase/:selectionId/:itemId?' element={<PageDataset />} />
+          <Route path='/metaadm/:selectionId/:itemId?' element={<PageDataset user={user.data} />} />
+          <Route path='/metaadm/:parentId/list/:selectionId/:itemId?' element={<PageDataset user={user.data} />} />
+          <Route path='/metabase/:selectionId/:itemId?' element={<PageDataset user={user.data} />} />
           <Route path='/makesense' element={
             <div style={{ height: 'calc(100vh - 64px)' }}>
               <iframe width='100%' height='100%' frameBorder='0' src='https://www.makesense.ai/' />
