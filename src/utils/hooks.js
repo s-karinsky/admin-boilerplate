@@ -217,7 +217,11 @@ const getFormDescription = (table, name, langId = 1) => async () => {
     .map(name => ({
       name,
       ...config.fields[name],
-      label: tDataMap[config.fields[name].lang_values_name] || config.fields[name].label
+      label: tDataMap[config.fields[name].lang_values_name] || config.fields[name].label,
+      props: {
+        ...config.fields[name]?.props,
+        label: tDataMap[config.fields[name].lang_values_name] || config.fields[name].label
+      }
     }))
 
   return config
