@@ -245,96 +245,130 @@ export const fetchSelectOptions = (asyncOptions) => async () => {
 export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], fetchSelectOptions(asyncOptions), params)
 
 export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId], async () => {
-  const selectionId = 65
-  const parentId = 'metaadm'
-  const menu = await getFormDescription(parentId, selectionId)()
-  const { select } = menu || {}
-  const params = {
-    keylabel: selectionId
-  }
-  // Базовая выборка родительских пунктов меню
-  const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
-  if (response.data?.status === 'error') {
-    throw new Error(response.data?.message)
-  }
-  if (!response.data?.data?.length) {
-    return []
-  }
-  const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
+  const responseSetions = await axios.postWithAuth('/query/select', { sql: "SELECT JSON_MERGE(pole,JSON_OBJECT('forms', (SELECT CONCAT('[',GROUP_CONCAT(JSON_MERGE(pole,JSON_OBJECT('id',a.id)) ),']') FROM metabase as a WHERE a.id_ref=b.id AND tip='forma'))) as menu_section FROM metabase as b WHERE tip='menu_section'" })
+  const sections = (responseSetions.data?.data || []).map(item => {
+    const section = parseJSON(item.menu_section)
+    const forms = parseJSON(section.forms)
+    return { ...section, forms }
+  })
   
-  // Формирование условия для выборки названия форм на выбранном языке
-  const names = data.map(item => `name="${item.name}"`)
-  if (!names.length) return []
-  const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: `(${names.join(' OR ')}) AND id_lang=${langId}` }) })
-  const rootNames = data.map((item, i) => {
-    let lang = (roots.data?.data || []).find(form => form.name === item.name) || {}
-    return {
-      name: lang.name || `Unknown ${i + 1}`,
-      value: lang.value || `Unknown ${i + 1}`,
-      forms: item.forms?.split(',') || []
-    }
-  })
-
-  const forms = data.reduce((acc, item) => [
-    ...acc,
-    ...(item.forms || '').split(',').map(form => `name="${form}"`)
-  ], [])
-  const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${forms.join(' OR ')}) AND id_lang=${langId}` }) })
-
-  const formsId = data.reduce((acc, item) => [
-    ...acc,
-    ...(item.forms || '').split(',').map(form => ['JSON_EXTRACT(pole, "$.lang_values_name")', `"${form}"`])
-  ], [])
-  const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('=')).join(' OR ') }) })
-
-  const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
-  const subitems = subitemsData.map((item, i) => {
-    const data = (res.data?.data || []).find(subitem => item.lang_values_name === subitem.name)
-    return { name: item.lang_values_name, value: data?.value || `Unknown ${i + 1}`, id: item.id }
-  })
-
-  const navItems = []
-  rootNames.forEach(root => {
-    const sub = subitems.filter(item => root.forms.includes(item.name))
-    const item = {
-      key: root.name,
-      label: root.value,
-      children: sub.map(subitem => ({
-        key: subitem.name,
-        label: <Link to={`/metabase/${subitem.id}`}>{subitem.value}</Link>
-      }))
-    }
-    navItems.push(item)
-  })
-
-  let res3 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('!=')).join(' AND ') }) })
-  res3 = (res3.data?.data || [])
-  res3.forEach(item => {
-    const json = parseJSON(item.pole)
-    navItems.push({
-      key: item.id,
-      label: <Link to={`/metabase/${item.id}`}>{json.name}</Link>
+  const rootSections = await Promise.all(
+    sections.map(section => {
+      const where = section.forms.map(form => `name="${form.lang_values_name}"`).join(' OR ')
+      return axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${where}) AND id_lang=${langId}` }) })
+        .then(res => ({ ...section, translate: keyBy(res.data?.data || [], 'name') }))
     })
-  })
+  ).then(parents => parents.map(parent => {
+    const { name, forms, translate } = parent
+    const children = forms.map(form => ({
+      key: form.lang_values_name,
+      label: <Link to={`/metabase/${form.id}`}>{translate[form.lang_values_name]?.value || form.lang_values_name}</Link>
+    }))
+    return { key: name, label: name, children }
+  }))
 
-  res3 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metaadm', where: 'tip="forma"'}) })
-  const adm = {
-    key: 'admin',
-    label: 'Admin',
-    children: []
-  }
-  res3 = (res3.data?.data || [])
-  res3.forEach(item => {
-    const json = parseJSON(item.pole)
-    if (typeof json.name !== 'string') return
-    adm.children.push({
-      key: `adm-${item.id}`,
-      label: <Link to={`/metaadm/${item.id}`}>{json.name}</Link>
-    })
-  })
-  navItems.push(adm)
+  const uncat = await axios.postWithAuth('/query/select', { sql: "SELECT * FROM metabase WHERE tip='forma' AND id_ref NOT IN ((SELECT id FROM metabase WHERE tip='menu_section'))" })
+  let rootItems = (uncat.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
+  const where = rootItems.map(item => `name="${item.lang_values_name}"`).join(' OR ')
+  const uncatTranslates = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${where}) AND id_lang=${langId}` }) })
+  const mapTranslates = keyBy(uncatTranslates.data?.data, 'name')
+  rootItems = rootItems.map(item => ({
+    key: item.id,
+    label: <Link to={`/metabase/${item.id}`}>{mapTranslates[item.lang_values_name]?.value || item.lang_values_name}</Link>
+  }))
+  return rootSections.concat(rootItems)
 
-  return navItems
+  // const selectionId = 65
+  // const parentId = 'metaadm'
+  // const menu = await getFormDescription(parentId, selectionId)()
+  // const { select } = menu || {}
+  // const params = {
+  //   keylabel: selectionId
+  // }
+
+  // // Базовая выборка родительских пунктов меню
+  // const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
+  // if (response.data?.status === 'error') {
+  //   throw new Error(response.data?.message)
+  // }
+  // if (!response.data?.data?.length) {
+  //   return []
+  // }
+  // const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
+  
+  // // Формирование условия для выборки названия форм на выбранном языке
+  // const names = data.map(item => `name="${item.name}"`)
+  // if (!names.length) return []
+  // const roots = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: 'name, value', from: 'lang_values', where: `(${names.join(' OR ')}) AND id_lang=${langId}` }) })
+  // const rootNames = data.map((item, i) => {
+  //   let lang = (roots.data?.data || []).find(form => form.name === item.name) || {}
+  //   return {
+  //     name: lang.name || `Unknown ${i + 1}`,
+  //     value: lang.value || `Unknown ${i + 1}`,
+  //     forms: item.forms?.split(',') || []
+  //   }
+  // })
+
+  // const forms = data.reduce((acc, item) => [
+  //   ...acc,
+  //   ...(item.forms || '').split(',').map(form => `name="${form}"`)
+  // ], [])
+  // const res = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${forms.join(' OR ')}) AND id_lang=${langId}` }) })
+
+  // const formsId = data.reduce((acc, item) => [
+  //   ...acc,
+  //   ...(item.forms || '').split(',').map(form => ['JSON_EXTRACT(pole, "$.lang_values_name")', `"${form}"`])
+  // ], [])
+  // const res2 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('=')).join(' OR ') }) })
+
+  // const subitemsData = (res2.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
+  // const subitems = subitemsData.map((item, i) => {
+  //   const data = (res.data?.data || []).find(subitem => item.lang_values_name === subitem.name)
+  //   return { name: item.lang_values_name, value: data?.value || `Unknown ${i + 1}`, id: item.id }
+  // })
+
+  // const navItems = []
+  // rootNames.forEach(root => {
+  //   const sub = subitems.filter(item => root.forms.includes(item.name))
+  //   const item = {
+  //     key: root.name,
+  //     label: root.value,
+  //     children: sub.map(subitem => ({
+  //       key: subitem.name,
+  //       label: <Link to={`/metabase/${subitem.id}`}>{subitem.value}</Link>
+  //     }))
+  //   }
+  //   navItems.push(item)
+  // })
+
+  // let res3 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metabase', where: formsId.map(item => item.join('!=')).join(' AND ') }) })
+  // res3 = (res3.data?.data || [])
+  // res3.forEach(item => {
+  //   const json = parseJSON(item.pole)
+  //   navItems.push({
+  //     key: item.id,
+  //     label: <Link to={`/metabase/${item.id}`}>{json.name}</Link>
+  //   })
+  // })
+
+  // res3 = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'metaadm', where: 'tip="forma"'}) })
+  // const adm = {
+  //   key: 'admin',
+  //   label: 'Admin',
+  //   children: []
+  // }
+  // res3 = (res3.data?.data || [])
+  // res3.forEach(item => {
+  //   const json = parseJSON(item.pole)
+  //   if (typeof json.name !== 'string') return
+  //   adm.children.push({
+  //     key: `adm-${item.id}`,
+  //     label: <Link to={`/metaadm/${item.id}`}>{json.name}</Link>
+  //   })
+  // })
+  // navItems.push(adm)
+
+  // return navItems
 }, params)
 
 export const useLangs = () => useQuery(['languages'], async () => {
