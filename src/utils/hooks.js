@@ -245,29 +245,37 @@ export const fetchSelectOptions = (asyncOptions) => async () => {
 export const useSelectOptions = (name, asyncOptions, params) => useQuery(['select-options', name], fetchSelectOptions(asyncOptions), params)
 
 export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId], async () => {
-  const responseSetions = await axios.postWithAuth('/query/select', { sql: "SELECT JSON_MERGE(pole,JSON_OBJECT('forms', (SELECT CONCAT('[',GROUP_CONCAT(JSON_MERGE(pole,JSON_OBJECT('id',a.id)) ),']') FROM metabase as a WHERE a.id_ref=b.id AND tip='forma'))) as menu_section FROM metabase as b WHERE tip='menu_section'" })
+  const responseSetions = await axios.postWithAuth('/query/select', { sql: `
+    SELECT JSON_MERGE(pole,JSON_OBJECT('table_name','metabase','forms', (SELECT CONCAT('[',GROUP_CONCAT(JSON_MERGE(pole,JSON_OBJECT('id',a.id)) ),']') FROM metabase as a WHERE a.id_ref=b.id AND tip='forma'))) as menu_section FROM metabase as b WHERE tip='menu_section'
+    UNION
+    SELECT JSON_MERGE(pole,JSON_OBJECT('table_name','metaadm','forms', (SELECT CONCAT('[',GROUP_CONCAT(JSON_MERGE(pole,JSON_OBJECT('id',c.id)) ),']') FROM metaadm as c WHERE c.id_ref=d.id AND tip='forma'))) as menu_section FROM metaadm as d WHERE tip='menu_section';
+  ` })
   const sections = (responseSetions.data?.data || []).map(item => {
     const section = parseJSON(item.menu_section)
     const forms = parseJSON(section.forms)
     return { ...section, forms }
   })
-  
+
   const rootSections = await Promise.all(
     sections.map(section => {
-      const where = section.forms.map(form => `name="${form.lang_values_name}"`).join(' OR ')
+      const where = (section.forms || []).map(form => `name="${form.lang_values_name}"`).join(' OR ')
       return axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${where}) AND id_lang=${langId}` }) })
         .then(res => ({ ...section, translate: keyBy(res.data?.data || [], 'name') }))
     })
   ).then(parents => parents.map(parent => {
     const { name, forms, translate } = parent
-    const children = forms.map(form => ({
+    const children = (forms || []).map(form => ({
       key: form.lang_values_name,
       label: <Link to={`/metabase/${form.id}`}>{translate[form.lang_values_name]?.value || form.lang_values_name}</Link>
     }))
     return { key: name, label: name, children }
   }))
 
-  const uncat = await axios.postWithAuth('/query/select', { sql: "SELECT * FROM metabase WHERE tip='forma' AND id_ref NOT IN ((SELECT id FROM metabase WHERE tip='menu_section'))" })
+  const uncat = await axios.postWithAuth('/query/select', { sql: `
+    SELECT id,json_unquote(JSON_EXTRACT(pole, "$.name")) as	\`name\`,json_unquote(JSON_EXTRACT(pole, "$.lang_values_name")) as \`lang_values_name\`,'metabase' as table_name FROM metabase WHERE tip='forma' AND id_ref NOT IN ((SELECT id FROM metabase WHERE tip='menu_section'))
+    UNION
+    SELECT id,json_unquote(JSON_EXTRACT(pole, "$.name")) as	\`name\`,json_unquote(JSON_EXTRACT(pole, "$.lang_values_name")) as \`lang_values_name\`,'metaadm' as table_name FROM metaadm WHERE tip='forma' AND id_ref NOT IN ((SELECT id FROM metaadm WHERE tip='menu_section'));
+  ` })
   let rootItems = (uncat.data?.data || []).map(item => ({ ...item, ...parseJSON(item.pole) }))
   const where = rootItems.map(item => `name="${item.lang_values_name}"`).join(' OR ')
   const uncatTranslates = await axios.postWithAuth('/query/select', { sql: sqlSelect({ select: '*', from: 'lang_values', where: `(${where}) AND id_lang=${langId}` }) })
