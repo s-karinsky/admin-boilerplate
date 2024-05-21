@@ -271,7 +271,6 @@ export const useMainNav = (langId = 1, params) => useQuery(['main-nav', langId],
     }))
     return { key: name, label: translated_name, children }
   }))
-  console.log(rootSections)
 
   const uncat = await axios.postWithAuth('/query/select', { sql: `
     SELECT id,json_unquote(JSON_EXTRACT(pole, "$.name")) as	\`name\`,json_unquote(JSON_EXTRACT(pole, "$.lang_values_name")) as \`lang_values_name\`,'metabase' as table_name FROM metabase WHERE tip='forma' AND id_ref NOT IN ((SELECT id FROM metabase WHERE tip='menu_section'))
