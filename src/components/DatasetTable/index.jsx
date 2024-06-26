@@ -186,7 +186,7 @@ export default function DatasetTable({
     })
   }, [selection, data?.list])
   const currentItem = useMemo(() => data?.list && data.list.find(item => String(item[keylabel]) === String(itemId)), [data?.list, itemId])
-
+  const iWasHere = selection.lang_values_name === 'g9s_pm_blocks'
   return (
     <>
       <Row
@@ -198,6 +198,7 @@ export default function DatasetTable({
           <Typography.Title>{data?.title || selection.name}</Typography.Title>
         </Col>
         <Col>
+          {iWasHere && 'Я тут был'}
           {!!insert.i1 && <Button
             type='primary'
             onClick={() => navigate(`${location.pathname}/create${location.search}`)}

@@ -21,6 +21,7 @@ export default function DatasetForm({
   onCancel = () => {}
 }) {
   const [ form ] = Form.useForm()
+  const iWasHere = query.trim().endsWith('pm_blocks') && selectId === '45'
 
   return (
     <DndModal
@@ -77,6 +78,9 @@ export default function DatasetForm({
         form={form}
         onFinish={onOk}
       >
+        {iWasHere && <div style={{ position: 'absolute', right: 40, top: 10 }}>
+          Здесь был я
+        </div>}
         {fields.map(field => (
           <FormField
             key={field.name}
