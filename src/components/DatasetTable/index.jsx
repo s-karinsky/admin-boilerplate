@@ -39,10 +39,11 @@ export default function DatasetTable({
 
   const { data = [], isLoading, refetch } = useQuery([`dataset-table-${route}`, selectionId], async () => {
     const response = await axios.postWithAuth('/query/select', { sql: sqlSelect(select[0], params) })
+    console.log(response)
     if (response.data?.status === 'error') {
       throw new Error(response.data?.message)
     }
-    const data = (response.data?.data || []).map(item => mapValues(item, value => parseJSON(value) || value))
+    const data = (response.data?.data || []).map(item => mapValues(item, value => value))
     const title = parentId ? data[0]?.selection_name : ''
     const list = parentId ? data.slice(1) : data
     const dateFields = fields.filter(item => item.type === 'date').map(item => item.name)
@@ -71,12 +72,13 @@ export default function DatasetTable({
     setWidthByIndex(getCellsWidth(route, selectionId))
   }, [selectionId])
 
-  useEffect(() => {
-    if (keylabel) return
-    Modal.warning({
-      title: 'Ключевое поле не найдено'
-    })
-  }, [keylabel])
+  // Ключевое поле не найдено - ошибка
+  // useEffect(() => {
+  //   if (keylabel) return
+  //   Modal.warning({
+  //     title: 'Ключевое поле не найдено'
+  //   })
+  // }, [keylabel])
 
   const handleResize = (event, field) => {
     const el = event.target
