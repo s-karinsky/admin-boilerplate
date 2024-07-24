@@ -4,7 +4,9 @@ export const sqlSelect = ({
   where,
   order = ''
 } = {}, replace = {}) => {
+  
   let query = `select ${select} from ${from} ${where ? `where ${where}` : ''} ${order}`
+  
   Object.keys(replace).forEach(key => {
     query = query.replaceAll(`:${key}`, replace[key])
   })
@@ -14,7 +16,7 @@ export const sqlSelect = ({
 export const sqlInsert = (table, values) => {
   if (Array.isArray(values)) {
     return `INSERT INTO ${table} VALUES (${values.map(val => typeof val === 'string' && val !== 'NULL' ? `'${val}'` : val).join(', ')})`
-  }
+}
 
   const [ fields, vals ] = Object.keys(values).reduce((acc, key) => {
     acc[0] = acc[0].concat(`\`${key}\``)
