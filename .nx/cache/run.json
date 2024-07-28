@@ -1,0 +1,21 @@
+{
+  "run": {
+    "command": "nx run tickets-admin:\"start\"",
+    "startTime": "2024-07-28T13:56:30.406Z",
+    "endTime": "2024-07-28T13:56:34.672Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "tickets-admin:start",
+      "target": "start",
+      "projectName": "tickets-admin",
+      "hash": "3247890541823952892",
+      "startTime": "2024-07-28T13:56:30.419Z",
+      "endTime": "2024-07-28T13:56:34.665Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 1
+    }
+  ]
+}

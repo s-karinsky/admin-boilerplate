@@ -7,7 +7,7 @@ import PageDataset from './pages/Dataset'
 import PageLogin from './pages/Login'
 import PageUsers from './pages/Users'
 import PageUser from './pages/User'
-import Layout from './components/Layout'
+import Layout from './components/Layout/index'
 import { useAuthorization } from './utils/hooks'
 import './App.css'
 
