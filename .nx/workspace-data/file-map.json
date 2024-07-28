@@ -1,0 +1,265 @@
+{
+  "version": "6.0",
+  "nxVersion": "19.5.3",
+  "deps": {
+    "@ant-design/icons": "^5.1.4",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "antd": "^5.6.1",
+    "antd-mask-input": "^2.0.7",
+    "axios": "^1.4.0",
+    "dayjs": "^1.11.9",
+    "deep-object-diff": "^1.1.9",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.11.0",
+    "react-query": "^3.39.3",
+    "react-quill": "^2.0.0",
+    "react-redux": "^8.1.0",
+    "react-router-dom": "^6.13.0",
+    "react-scripts": "5.0.1",
+    "reselect": "^4.1.8",
+    "universal-cookie": "^4.0.4",
+    "use-react-router-breadcrumbs": "^4.0.1",
+    "web-vitals": "^2.1.4",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "sass": "^1.63.4",
+    "@vitejs/plugin-react": "1.3.2",
+    "vite": "2.7.0",
+    "nx": "19.5.3"
+  },
+  "pathMappings": {},
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "nonProjectFiles": [],
+    "projectFileMap": {
+      "tickets-admin": [
+        {
+          "file": ".gitignore",
+          "hash": "14730046187224853654"
+        },
+        {
+          "file": "README.md",
+          "hash": "12761067833732264204"
+        },
+        {
+          "file": "index.html",
+          "hash": "2141358505189854110"
+        },
+        {
+          "file": "nx.json",
+          "hash": "18298970632857746642"
+        },
+        {
+          "file": "package-lock.json",
+          "hash": "11107970035923631675"
+        },
+        {
+          "file": "package.json",
+          "hash": "16318291052739814854",
+          "deps": [
+            "npm:@babel/plugin-proposal-private-property-in-object",
+            "npm:sass",
+            "npm:@vitejs/plugin-react",
+            "npm:vite",
+            "npm:nx",
+            "npm:@ant-design/icons",
+            "npm:@reduxjs/toolkit",
+            "npm:@testing-library/jest-dom",
+            "npm:@testing-library/react",
+            "npm:@testing-library/user-event",
+            "npm:antd",
+            "npm:antd-mask-input",
+            "npm:axios",
+            "npm:dayjs",
+            "npm:deep-object-diff",
+            "npm:lodash",
+            "npm:react",
+            "npm:react-dom",
+            "npm:react-icons",
+            "npm:react-query",
+            "npm:react-quill",
+            "npm:react-redux",
+            "npm:react-router-dom",
+            "npm:react-scripts",
+            "npm:reselect",
+            "npm:universal-cookie",
+            "npm:use-react-router-breadcrumbs",
+            "npm:web-vitals"
+          ]
+        },
+        {
+          "file": "public/favicon.ico",
+          "hash": "2949791817221603359"
+        },
+        {
+          "file": "public/index.css",
+          "hash": "663501403174534698"
+        },
+        {
+          "file": "public/logo192.png",
+          "hash": "7585273181698778288"
+        },
+        {
+          "file": "public/logo512.png",
+          "hash": "9339365414554387981"
+        },
+        {
+          "file": "public/manifest.json",
+          "hash": "18148235521095288643"
+        },
+        {
+          "file": "public/robots.txt",
+          "hash": "13952162886219042623"
+        },
+        {
+          "file": "src/App.css",
+          "hash": "11616244706920602825"
+        },
+        {
+          "file": "src/App.js",
+          "hash": "8909560705262408848"
+        },
+        {
+          "file": "src/App.test.js",
+          "hash": "3770917940002253103"
+        },
+        {
+          "file": "src/components/ColumnFilter/index.jsx",
+          "hash": "18254107147271006193"
+        },
+        {
+          "file": "src/components/CreateCityModal/index.jsx",
+          "hash": "6707484277499405776"
+        },
+        {
+          "file": "src/components/DatasetForm/index.jsx",
+          "hash": "7263488718769350678"
+        },
+        {
+          "file": "src/components/DatasetTable/index.jsx",
+          "hash": "12265372282660996836"
+        },
+        {
+          "file": "src/components/DatasetTable/styles.module.scss",
+          "hash": "8547217311261095676"
+        },
+        {
+          "file": "src/components/DateTableCell/index.jsx",
+          "hash": "1219802826409760896"
+        },
+        {
+          "file": "src/components/DndModal/index.jsx",
+          "hash": "11215140195789824170"
+        },
+        {
+          "file": "src/components/DndModal/styles.module.scss",
+          "hash": "17072049646812496993"
+        },
+        {
+          "file": "src/components/FormField/index.jsx",
+          "hash": "7384370725300066558"
+        },
+        {
+          "file": "src/components/InputFile/index.jsx",
+          "hash": "9173389183806501736"
+        },
+        {
+          "file": "src/components/InputImage/index.jsx",
+          "hash": "9874206058884945699"
+        },
+        {
+          "file": "src/components/InputImage/styles.css",
+          "hash": "12510485727065663136"
+        },
+        {
+          "file": "src/components/Layout/index.jsx",
+          "hash": "6148391115121986570"
+        },
+        {
+          "file": "src/components/Layout/styles.module.scss",
+          "hash": "13011629520915462356"
+        },
+        {
+          "file": "src/components/SqlError/index.jsx",
+          "hash": "11954763808639846776"
+        },
+        {
+          "file": "src/consts.js",
+          "hash": "8667300311586144392"
+        },
+        {
+          "file": "src/index.css",
+          "hash": "2422406020327682843"
+        },
+        {
+          "file": "src/index.jsx",
+          "hash": "2978071876103437772"
+        },
+        {
+          "file": "src/pages/Dataset/index.jsx",
+          "hash": "3298531059969453909"
+        },
+        {
+          "file": "src/pages/Login/index.jsx",
+          "hash": "4538987163896981442"
+        },
+        {
+          "file": "src/pages/User/index.jsx",
+          "hash": "1442461409483709392"
+        },
+        {
+          "file": "src/pages/Users/index.jsx",
+          "hash": "16295532364275586042"
+        },
+        {
+          "file": "src/reportWebVitals.js",
+          "hash": "16129329137670165612"
+        },
+        {
+          "file": "src/setupTests.js",
+          "hash": "15825827641139762683"
+        },
+        {
+          "file": "src/utils/api.js",
+          "hash": "2045796292149120114"
+        },
+        {
+          "file": "src/utils/axios.js",
+          "hash": "8694735430316134625"
+        },
+        {
+          "file": "src/utils/components.js",
+          "hash": "2931909929196768415"
+        },
+        {
+          "file": "src/utils/context.js",
+          "hash": "10361438325169302735"
+        },
+        {
+          "file": "src/utils/hooks.js",
+          "hash": "10246430455654856765"
+        },
+        {
+          "file": "src/utils/sql.js",
+          "hash": "10822213334965193126"
+        },
+        {
+          "file": "src/utils/utils.js",
+          "hash": "15351237917283397341"
+        },
+        {
+          "file": "src/utils/validationRules.js",
+          "hash": "8574750545324832429"
+        },
+        {
+          "file": "vite.config.js",
+          "hash": "1990394286331374546"
+        }
+      ]
+    }
+  }
+}

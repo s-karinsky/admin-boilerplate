@@ -1,0 +1,34 @@
+
+> tickets-admin@0.1.0 start
+> nx exec -- vite
+
+ > src/App.js:37:6: error: Unexpected "<"
+    37 │       <Row style={{ height: '100vh' }} justify='center' align='middle'>
+       ╵       ^
+
+[31merror when starting dev server:[39m
+[31mError: Build failed with 1 error:[39m
+[31msrc/App.js:37:6: error: Unexpected "<"[39m
+[31m    at failureErrorWithLog (D:\admin-boilerplate\node_modules\esbuild\lib\main.js:1493:15)[39m
+[31m    at D:\admin-boilerplate\node_modules\esbuild\lib\main.js:1151:28[39m
+[31m    at runOnEndCallbacks (D:\admin-boilerplate\node_modules\esbuild\lib\main.js:941:63)[39m
+[31m    at buildResponseToResult (D:\admin-boilerplate\node_modules\esbuild\lib\main.js:1149:7)[39m
+[31m    at D:\admin-boilerplate\node_modules\esbuild\lib\main.js:1258:14[39m
+[31m    at D:\admin-boilerplate\node_modules\esbuild\lib\main.js:629:9[39m
+[31m    at handleIncomingPacket (D:\admin-boilerplate\node_modules\esbuild\lib\main.js:726:9)[39m
+[31m    at Socket.readFromStdout (D:\admin-boilerplate\node_modules\esbuild\lib\main.js:596:7)[39m
+[31m    at Socket.emit (node:events:513:28)[39m
+[31m    at addChunk (node:internal/streams/readable:324:12)[39m
+Error: Command failed: "vite"
+    at checkExecSyncError (node:child_process:885:11)
+    at execSync (node:child_process:957:15)
+    at Object.nxExecCommand (D:\admin-boilerplate\node_modules\nx\src\command-line\exec\exec.js:33:38)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.handler (D:\admin-boilerplate\node_modules\nx\src\command-line\exec\command-object.js:11:13) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 8272,
+  stdout: null,
+  stderr: null
+}

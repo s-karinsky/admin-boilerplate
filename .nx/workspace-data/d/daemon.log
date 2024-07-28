@@ -1,0 +1,60 @@
+[NX Daemon Server] - 2024-07-28T13:56:25.368Z - Started listening on: \\.\pipe\nx\C:\Users\D14E~1\AppData\Local\Temp\7e76a9303031c7f09eb4\d.sock
+[NX Daemon Server] - 2024-07-28T13:56:25.374Z - [WATCHER]: Subscribed to changes within: D:\admin-boilerplate (native)
+[NX Daemon Server] - 2024-07-28T13:56:25.380Z - Established a connection. Number of open connections: 1
+[NX Daemon Server] - 2024-07-28T13:56:25.383Z - Closed a connection. Number of open connections: 0
+[NX Daemon Server] - 2024-07-28T13:56:25.383Z - Established a connection. Number of open connections: 1
+[NX Daemon Server] - 2024-07-28T13:56:25.386Z - [REQUEST]: Client Request for Project Graph Received
+[NX Daemon Server] - 2024-07-28T13:56:25.937Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX Daemon Server] - 2024-07-28T13:56:25.937Z - [REQUEST]: 
+[NX Daemon Server] - 2024-07-28T13:56:25.937Z - [REQUEST]: 
+[NX Daemon Server] - 2024-07-28T13:56:25.945Z - Time taken for 'loadNxPlugins' 548.94739985466ms
+[NX Daemon Server] - 2024-07-28T13:56:25.989Z - Time taken for 'build-project-configs' 26.270299911499023ms
+[NX Daemon Server] - 2024-07-28T13:56:26.068Z - [REQUEST]: Responding to the client. project-graph
+[NX Daemon Server] - 2024-07-28T13:56:26.070Z - Time taken for 'total for creating and serializing project graph' 682.2191998958588ms
+[NX Daemon Server] - 2024-07-28T13:56:26.072Z - Done responding to the client project-graph
+[NX Daemon Server] - 2024-07-28T13:56:26.073Z - Handled REQUEST_PROJECT_GRAPH. Handling time: 682. Response time: 5.
+[NX Daemon Server] - 2024-07-28T13:56:29.396Z - Established a connection. Number of open connections: 2
+[NX Daemon Server] - 2024-07-28T13:56:29.396Z - Closed a connection. Number of open connections: 1
+[NX Daemon Server] - 2024-07-28T13:56:29.398Z - Established a connection. Number of open connections: 2
+[NX Daemon Server] - 2024-07-28T13:56:29.406Z - [REQUEST]: Client Request for Project Graph Received
+[NX Daemon Server] - 2024-07-28T13:56:29.407Z - [REQUEST]: Responding to the client. project-graph
+[NX Daemon Server] - 2024-07-28T13:56:29.409Z - Time taken for 'total for creating and serializing project graph' 0.737799882888794ms
+[NX Daemon Server] - 2024-07-28T13:56:29.409Z - Done responding to the client project-graph
+[NX Daemon Server] - 2024-07-28T13:56:29.410Z - Handled REQUEST_PROJECT_GRAPH. Handling time: 1. Response time: 3.
+[NX Daemon Server] - 2024-07-28T13:56:29.559Z - [REQUEST]: Responding to the client. handleHashTasks
+[NX Daemon Server] - 2024-07-28T13:56:29.559Z - Done responding to the client handleHashTasks
+[NX Daemon Server] - 2024-07-28T13:56:29.559Z - Handled HASH_TASKS. Handling time: 25. Response time: 0.
+[NX Daemon Server] - 2024-07-28T13:56:33.845Z - Established a connection. Number of open connections: 3
+[NX Daemon Server] - 2024-07-28T13:56:33.846Z - Closed a connection. Number of open connections: 2
+[NX Daemon Server] - 2024-07-28T13:56:33.847Z - Established a connection. Number of open connections: 3
+[NX Daemon Server] - 2024-07-28T13:56:33.851Z - [REQUEST]: Client Request for Project Graph Received
+[NX Daemon Server] - 2024-07-28T13:56:33.852Z - [REQUEST]: Responding to the client. project-graph
+[NX Daemon Server] - 2024-07-28T13:56:33.854Z - Time taken for 'total for creating and serializing project graph' 0.7855000495910645ms
+[NX Daemon Server] - 2024-07-28T13:56:33.854Z - Done responding to the client project-graph
+[NX Daemon Server] - 2024-07-28T13:56:33.854Z - Handled REQUEST_PROJECT_GRAPH. Handling time: 1. Response time: 2.
+[NX Daemon Server] - 2024-07-28T13:56:34.617Z - Closed a connection. Number of open connections: 2
+[NX Daemon Server] - 2024-07-28T13:56:34.663Z - [REQUEST]: Responding to the client. recordOutputsHash
+[NX Daemon Server] - 2024-07-28T13:56:34.664Z - Done responding to the client recordOutputsHash
+[NX Daemon Server] - 2024-07-28T13:56:34.664Z - Handled RECORD_OUTPUTS_HASH. Handling time: 0. Response time: 1.
+[NX Daemon Server] - 2024-07-28T13:56:36.142Z - [REQUEST]: Responding to the client. PROCESS_IN_BACKGROUND
+[NX Daemon Server] - 2024-07-28T13:56:36.142Z - Uploading file artifacts
+[NX Daemon Server] - 2024-07-28T13:56:36.283Z - Done responding to the client PROCESS_IN_BACKGROUND
+[NX Daemon Server] - 2024-07-28T13:56:36.283Z - Handled PROCESS_IN_BACKGROUND. Handling time: 408. Response time: 141.
+[NX Daemon Server] - 2024-07-28T13:56:36.283Z - Closed a connection. Number of open connections: 1
+[NX Daemon Server] - 2024-07-28T13:56:36.283Z - Closed a connection. Number of open connections: 0
+[NX Daemon Server] - 2024-07-28T13:56:37.200Z - Done uploading file artifacts
+[NX Daemon Server] - 2024-07-28T13:56:37.200Z - Sending EndRun request
+[NX Daemon Server] - 2024-07-28T13:56:37.446Z - Done sending EndRun request
+[NX Daemon Server] - 2024-07-28T13:57:13.012Z - [WATCHER]: package.json was modified
+[NX Daemon Server] - 2024-07-28T13:57:13.013Z - [WATCHER]: Processing file changes in outputs
+[NX Daemon Server] - 2024-07-28T13:57:13.128Z - [REQUEST]: Updated workspace context based on watched changes, recomputing project graph...
+[NX Daemon Server] - 2024-07-28T13:57:13.129Z - [REQUEST]: package.json
+[NX Daemon Server] - 2024-07-28T13:57:13.129Z - [REQUEST]: 
+[NX Daemon Server] - 2024-07-28T13:57:13.134Z - Time taken for 'hash changed files from watcher' 6.929699897766113ms
+[NX Daemon Server] - 2024-07-28T13:57:13.159Z - Time taken for 'build-project-configs' 21.824599981307983ms
+[NX Daemon Server] - 2024-07-28T13:57:13.225Z - Time taken for 'total execution time for createProjectGraph()' 46.080300092697144ms
+[NX Daemon Server] - 2024-07-28T14:00:11.142Z - [WATCHER]: Processing file changes in outputs
+[NX Daemon Server] - 2024-07-28T14:00:11.150Z - [WATCHER]: .gitignore was deleted
+[NX Daemon Server] - 2024-07-28T14:00:11.150Z - [WATCHER]: Stopping the watcher for D:\admin-boilerplate (sources)
+[NX Daemon Server] - 2024-07-28T14:00:11.151Z - [WATCHER]: Stopping the watcher for D:\admin-boilerplate (outputs)
+[NX Daemon Server] - 2024-07-28T14:00:11.151Z - Server stopped because: "Stopping the daemon the set of ignored files changed (native)"
